@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Homework Board — Sem 2 2026</title>
+<title>skool.ai — Homework Board</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;800;900&family=Raleway:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
     --bg:#0B0B0D;
@@ -27,11 +27,11 @@
     --amber:#FFB454;
   }
   *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;}
-  .mono{font-family:'IBM Plex Mono',monospace;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:'Raleway',sans-serif;}
+  .num{font-variant-numeric:tabular-nums;}
 
   header{
-    padding:22px 20px 14px;
+    padding:24px 24px 16px;
     border-bottom:1px solid var(--line);
     display:flex;
     align-items:flex-end;
@@ -39,18 +39,28 @@
     gap:16px;
     flex-wrap:wrap;
   }
-  .htitle-wrap{display:flex;align-items:center;gap:10px;}
+  .htitle-wrap{display:flex;align-items:center;gap:11px;}
   .htitle-wrap .dot{width:10px;height:10px;border-radius:50%;background:var(--marker);box-shadow:0 0 12px var(--marker);}
   .htitle-wrap .dot.live{background:var(--leaf);box-shadow:0 0 12px var(--leaf);}
-  h1{font-size:19px;font-weight:800;margin:0;letter-spacing:-0.3px;}
-  header .sub{font-size:12px;color:var(--text-dim);margin-top:3px;}
+  h1{
+    font-family:'Orbitron',sans-serif;
+    font-weight:800;
+    font-size:clamp(20px,3vw,26px);
+    margin:0;
+    letter-spacing:1px;
+    background:linear-gradient(120deg,#F5C242,#FF6B4A 60%,#B784D6);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+  header .sub{font-size:12.5px;font-weight:500;color:var(--text-dim);margin-top:4px;}
 
   .controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
   .btn{
-    font-family:'Inter',sans-serif;
-    font-size:12.5px;
-    font-weight:600;
-    padding:6px 13px;
+    font-family:'Raleway',sans-serif;
+    font-size:13px;
+    font-weight:700;
+    padding:7px 14px;
     border-radius:6px;
     border:1px solid var(--line);
     background:var(--panel);
@@ -60,29 +70,33 @@
   }
   .btn:hover{border-color:var(--text-dim);color:var(--text);}
   .btn.active{background:var(--marker);color:#1A1400;border-color:var(--marker);}
-  .reset-btn{
-    font-size:11.5px;
+  .reset-btn, .hidden-btn{
+    font-size:12px;
+    font-weight:600;
     color:var(--text-faint);
     background:none;border:none;
     text-decoration:underline;
     cursor:pointer;
+    font-family:'Raleway',sans-serif;
   }
   .reset-btn:hover{color:var(--overdue);}
+  .hidden-btn:hover{color:var(--marker);}
 
   .notes-ribbon{
-    padding:9px 20px;
+    padding:10px 24px;
     border-bottom:1px solid var(--line);
     display:flex;
     gap:18px;
     overflow-x:auto;
-    font-size:11.5px;
+    font-size:12px;
+    font-weight:500;
     color:var(--text-dim);
     align-items:center;
   }
   .notes-ribbon .ribbon-label{
-    font-family:'IBM Plex Mono',monospace;
     font-size:10px;
-    letter-spacing:1px;
+    font-weight:800;
+    letter-spacing:1.2px;
     text-transform:uppercase;
     color:var(--text-faint);
     flex-shrink:0;
@@ -95,87 +109,135 @@
     background:var(--panel);
     border:1px solid var(--line);
     border-radius:20px;
-    padding:3px 10px 3px 4px;
+    padding:4px 11px 4px 4px;
   }
   .notes-ribbon .note-chip .kdot{width:6px;height:6px;border-radius:50%;background:var(--leaf);margin-left:4px;}
-  .notes-ribbon .note-chip .ndate{font-family:'IBM Plex Mono',monospace;color:var(--leaf);}
+  .notes-ribbon .note-chip .ndate{color:var(--leaf);font-weight:700;}
+
+  .hidden-panel{
+    margin:14px 24px 0;
+    padding:14px 16px;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:10px;
+    display:none;
+  }
+  .hidden-panel.open{display:block;}
+  .hidden-panel h3{margin:0 0 10px;font-size:12.5px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);}
+  .hidden-list{display:flex;flex-wrap:wrap;gap:8px;}
+  .hidden-chip{
+    display:flex;align-items:center;gap:8px;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:20px;
+    padding:5px 6px 5px 12px;
+    font-size:12.5px;
+  }
+  .hidden-chip .restore-btn{
+    background:var(--leaf);
+    color:#0B0B0D;
+    border:none;
+    border-radius:50%;
+    width:20px;height:20px;
+    font-size:12px;
+    cursor:pointer;
+    font-weight:800;
+  }
+  .hidden-empty{color:var(--text-faint);font-size:12.5px;font-style:italic;}
 
   .board{
     display:flex;
-    gap:14px;
-    padding:18px;
-    overflow-x:auto;
+    gap:16px;
+    padding:20px 24px;
+    width:100%;
     align-items:flex-start;
     min-height:65vh;
   }
   .column{
     background:var(--panel);
-    border-radius:10px;
-    width:290px;
-    flex-shrink:0;
+    border-radius:12px;
+    flex:1 1 0;
+    min-width:0;
     display:flex;
     flex-direction:column;
-    max-height:calc(100vh - 190px);
+    max-height:calc(100vh - 200px);
     border:1px solid var(--line);
   }
   .column.drag-over{outline:2px dashed var(--marker);outline-offset:-2px;}
   .col-head{
-    padding:13px 14px 10px;
+    padding:15px 18px 12px;
     display:flex;
     align-items:center;
     justify-content:space-between;
     border-bottom:1px solid var(--line);
     background:var(--panel-head);
-    border-radius:10px 10px 0 0;
+    border-radius:12px 12px 0 0;
     position:sticky;
     top:0;
   }
-  .col-head .name{font-size:12.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;display:flex;align-items:center;gap:7px;}
+  .col-head .name{font-size:13.5px;font-weight:800;text-transform:uppercase;letter-spacing:0.7px;display:flex;align-items:center;gap:8px;}
   .col-head .count{
-    font-family:'IBM Plex Mono',monospace;
-    font-size:11px;
+    font-size:12px;
+    font-weight:700;
     color:var(--text-dim);
     background:rgba(255,255,255,0.06);
-    padding:1px 7px;
+    padding:2px 9px;
     border-radius:10px;
   }
-  .col-dot{width:8px;height:8px;border-radius:50%;}
+  .col-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
   .col-body{
-    padding:10px;
+    padding:14px;
     overflow-y:auto;
     display:flex;
     flex-direction:column;
-    gap:9px;
+    gap:12px;
     flex:1;
   }
   .col-body::-webkit-scrollbar{width:5px;}
   .col-body::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px;}
-  .col-empty{color:var(--text-faint);font-size:12px;text-align:center;padding:20px 8px;font-style:italic;}
+  .col-empty{color:var(--text-faint);font-size:12.5px;text-align:center;padding:26px 8px;font-style:italic;}
 
   .card{
     background:var(--card);
-    border-radius:8px;
-    padding:11px 12px 10px;
-    border-top:3px solid var(--marker);
+    border-radius:10px;
+    padding:16px 16px 14px;
+    border-top:4px solid var(--marker);
     cursor:grab;
     transition:background .12s ease;
     position:relative;
   }
   .card:hover{background:var(--card-hover);}
+  .card:hover .remove-btn{opacity:1;}
   .card:active{cursor:grabbing;}
   .card.dragging{opacity:0.4;}
   .card.type-DR{border-top-color:var(--marker);}
   .card.type-FI{border-top-color:var(--coral);}
   .card.type-EX{border-top-color:var(--plum);}
 
-  .card .subj{font-size:13.5px;font-weight:600;line-height:1.35;margin-bottom:9px;padding-right:6px;}
-  .card .chip-row{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px;}
+  .remove-btn{
+    position:absolute;
+    top:10px; right:10px;
+    width:22px;height:22px;
+    border-radius:6px;
+    border:none;
+    background:rgba(255,255,255,0.05);
+    color:var(--text-faint);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;
+    font-size:14px;
+    line-height:1;
+    opacity:0;
+    transition:opacity .15s ease, background .15s ease, color .15s ease;
+  }
+  .remove-btn:hover{background:var(--overdue);color:#fff;}
+
+  .card .subj{font-size:15px;font-weight:700;line-height:1.4;margin-bottom:14px;padding-right:26px;}
+  .card .chip-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
   .chip{
-    font-family:'IBM Plex Mono',monospace;
-    font-size:9.5px;
-    font-weight:600;
-    letter-spacing:0.4px;
-    padding:2.5px 7px;
+    font-size:10.5px;
+    font-weight:800;
+    letter-spacing:0.5px;
+    padding:4px 10px;
     border-radius:20px;
     text-transform:uppercase;
     color:#0B0B0D;
@@ -186,13 +248,12 @@
   .chip.type-FI-chip{background:var(--coral);}
   .chip.type-EX-chip{background:var(--plum);}
 
-  .card .badge-row{display:flex;align-items:center;justify-content:space-between;gap:6px;}
+  .card .badge-row{display:flex;align-items:center;justify-content:space-between;gap:8px;}
   .date-badge{
-    font-family:'IBM Plex Mono',monospace;
-    font-size:10.5px;
-    font-weight:600;
-    padding:3px 8px;
-    border-radius:5px;
+    font-size:11.5px;
+    font-weight:700;
+    padding:4px 10px;
+    border-radius:6px;
     background:rgba(255,255,255,0.06);
     color:var(--text-dim);
   }
@@ -200,16 +261,16 @@
   .date-badge.today{background:rgba(255,76,76,0.16);color:var(--overdue);}
   .date-badge.soon{background:rgba(255,180,84,0.14);color:var(--amber);}
 
-  .move-btns{display:flex;gap:3px;}
+  .move-btns{display:flex;gap:4px;}
   .move-btn{
-    width:20px;height:20px;
-    border-radius:5px;
+    width:24px;height:24px;
+    border-radius:6px;
     border:1px solid var(--line);
     background:rgba(255,255,255,0.04);
     color:var(--text-dim);
     display:flex;align-items:center;justify-content:center;
     cursor:pointer;
-    font-size:11px;
+    font-size:12px;
     line-height:1;
   }
   .move-btn:hover{background:var(--marker);color:#1A1400;border-color:var(--marker);}
@@ -217,31 +278,35 @@
   .move-btn:disabled:hover{background:rgba(255,255,255,0.04);color:var(--text-dim);}
 
   footer{
-    padding:16px 20px 40px;
+    padding:18px 24px 44px;
     border-top:1px solid var(--line);
     margin-top:6px;
   }
-  .legend{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:10px;}
-  .legend-item{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--text-dim);}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;margin-bottom:12px;}
+  .legend-item{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:500;color:var(--text-dim);}
   .legend-dot{width:10px;height:10px;border-radius:3px;}
-  footer p{font-size:11.5px;color:var(--text-faint);line-height:1.6;max-width:640px;}
+  footer p{font-size:12px;font-weight:400;color:var(--text-faint);line-height:1.7;max-width:680px;}
 
-  .loading{padding:60px 20px;text-align:center;color:var(--text-dim);font-size:13px;}
+  .loading{padding:60px 20px;text-align:center;color:var(--text-dim);font-size:13.5px;font-weight:500;}
   .conn-error{
-    margin:14px 20px 0;
-    padding:10px 14px;
+    margin:14px 24px 0;
+    padding:11px 15px;
     background:rgba(255,76,76,0.1);
     border:1px solid rgba(255,76,76,0.3);
     border-radius:8px;
     font-size:12.5px;
+    font-weight:600;
     color:var(--overdue);
     display:none;
   }
 
+  @media (max-width:800px){
+    .board{flex-direction:column;}
+    .column{width:100%;max-height:none;}
+  }
   @media (max-width:640px){
-    header{padding:16px 14px 12px;}
-    .board{padding:12px;}
-    .column{width:260px;}
+    header{padding:18px 16px 14px;}
+    .board{padding:14px;}
   }
 </style>
 </head>
@@ -249,8 +314,8 @@
 
 <header>
   <div>
-    <div class="htitle-wrap"><span class="dot" id="liveDot"></span><h1>Homework Board</h1></div>
-    <div class="sub">Semester 2 2026 · drag a card across, or use the arrows</div>
+    <div class="htitle-wrap"><span class="dot" id="liveDot"></span><h1>skool.ai</h1></div>
+    <div class="sub">Homework Board · Semester 2 2026</div>
   </div>
   <div class="controls">
     <div id="kidFilter" style="display:flex;gap:6px;">
@@ -258,11 +323,17 @@
       <button class="btn" data-kid="Y7">Year 7</button>
       <button class="btn" data-kid="Y11">Year 11</button>
     </div>
+    <button class="hidden-btn" id="hiddenBtn">Removed (0)</button>
     <button class="reset-btn" id="resetBtn">Reset board</button>
   </div>
 </header>
 
 <div class="conn-error" id="connError">Couldn't reach the shared board right now. Changes won't save until the connection's back — check your internet connection.</div>
+
+<div class="hidden-panel" id="hiddenPanel">
+  <h3>Removed cards</h3>
+  <div class="hidden-list" id="hiddenList"></div>
+</div>
 
 <div class="notes-ribbon" id="notesRibbon"></div>
 
@@ -277,7 +348,7 @@
     <div class="legend-item"><span class="legend-dot" style="background:var(--plum)"></span>Exam</div>
     <div class="legend-item"><span class="legend-dot" style="background:var(--overdue)"></span>Overdue badge</div>
   </div>
-  <p>Draft due dates matter — teachers give feedback that improves the final grade. Final due dates are firm; extensions must be requested from the school before the due date. Card positions sync live for the whole family.</p>
+  <p>Draft due dates matter — teachers give feedback that improves the final grade. Final due dates are firm; extensions must be requested from the school before the due date. Card positions sync live for the whole family. Removed a subject you don't take? Use the × on the card — it hides it for everyone, and you can bring it back any time from "Removed" above.</p>
 </footer>
 
 <script type="module">
@@ -297,6 +368,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const statusRef = ref(db, 'homeworkBoard/status');
+const hiddenRef = ref(db, 'homeworkBoard/hidden');
 
 const ITEMS = [{"date":"2026-07-17","day":"Fri","kid":"Y7","subject":"NAIDOC Event 12pm","type":"EV"},{"date":"2026-07-29","day":"Wed","kid":"Y7","subject":"Geography - Folio 1","type":"FI"},{"date":"2026-08-04","day":"Tue","kid":"Y7","subject":"Maths - Exam (60 min)","type":"EX"},{"date":"2026-08-06","day":"Thu","kid":"Y7","subject":"Design & Tech - Onguard","type":"FI"},{"date":"2026-08-07","day":"Fri","kid":"Y7","subject":"Civics and Citizenship - Task 1","type":"DR"},{"date":"2026-08-11","day":"Tue","kid":"Y7","subject":"Science - Physics Exam","type":"EX"},{"date":"2026-08-12","day":"Wed","kid":"Y7","subject":"Brisbane Ekka Holiday","type":"EV"},{"date":"2026-08-13","day":"Thu","kid":"Y7","subject":"Civics and Citizenship - Task 1 (FINAL)","type":"FI"},{"date":"2026-08-13","day":"Thu","kid":"Y7","subject":"ECB","type":"FI"},{"date":"2026-08-13","day":"Thu","kid":"Y7","subject":"Geography - Folio 2","type":"FI"},{"date":"2026-08-13","day":"Thu","kid":"Y7","subject":"Performing Arts - Performance","type":"DR"},{"date":"2026-08-20","day":"Thu","kid":"Y7","subject":"English - Task 3 Narrative","type":"DR"},{"date":"2026-08-20","day":"Thu","kid":"Y7","subject":"Design & Tech - Practical Task Review","type":"EV"},{"date":"2026-08-21","day":"Fri","kid":"Y7","subject":"Performing Arts - Performance (FINAL)","type":"FI"},{"date":"2026-08-25","day":"Tue","kid":"Y7","subject":"Food Studies - Responding Checkpoint 1","type":"FI"},{"date":"2026-08-25","day":"Tue","kid":"Y7","subject":"Music - Performance","type":"DR"},{"date":"2026-08-27","day":"Thu","kid":"Y7","subject":"Civics - POL Folio 1 (FINAL)","type":"FI"},{"date":"2026-08-27","day":"Thu","kid":"Y7","subject":"Film/Media - Stop-Motion Animation","type":"DR"},{"date":"2026-08-27","day":"Thu","kid":"Y7","subject":"Maths - Investigation (FINAL)","type":"FI"},{"date":"2026-09-01","day":"Tue","kid":"Y7","subject":"Music - Artist Statement","type":"DR"},{"date":"2026-09-01","day":"Tue","kid":"Y7","subject":"Geography - Folio 3 (FINAL)","type":"FI"},{"date":"2026-09-02","day":"Wed","kid":"Y7","subject":"Food Studies - Responding Checkpoint 2","type":"FI"},{"date":"2026-09-03","day":"Thu","kid":"Y7","subject":"HPE - Project (FINAL)","type":"FI"},{"date":"2026-09-03","day":"Thu","kid":"Y7","subject":"Performing Arts - Choreography","type":"DR"},{"date":"2026-09-03","day":"Thu","kid":"Y7","subject":"Visual Art","type":"DR"},{"date":"2026-09-04","day":"Fri","kid":"Y7","subject":"English - Task 3 Narrative (FINAL)","type":"FI"},{"date":"2026-09-04","day":"Fri","kid":"Y7","subject":"Design & Tech - Practical Task (FINAL)","type":"FI"},{"date":"2026-09-04","day":"Fri","kid":"Y7","subject":"Student Free Day","type":"EV"},{"date":"2026-09-07","day":"Mon","kid":"Y7","subject":"Food Studies - Responding (FINAL)","type":"FI"},{"date":"2026-09-07","day":"Mon","kid":"Y7","subject":"Music - Performance (FINAL)","type":"FI"},{"date":"2026-09-07","day":"Mon","kid":"Y7","subject":"Science - Student Experiment (DUE)","type":"FI"},{"date":"2026-09-08","day":"Tue","kid":"Y7","subject":"Food Studies - Cooking (FINAL)","type":"FI"},{"date":"2026-09-08","day":"Tue","kid":"Y7","subject":"Music - Artist Statement (FINAL)","type":"FI"},{"date":"2026-09-08","day":"Tue","kid":"Y7","subject":"Film/Media - Stop-Motion (FINAL)","type":"FI"},{"date":"2026-09-08","day":"Tue","kid":"Y7","subject":"Performing Arts - Choreography (FINAL)","type":"FI"},{"date":"2026-09-08","day":"Tue","kid":"Y7","subject":"Visual Art (FINAL)","type":"FI"},{"date":"2026-09-08","day":"Tue","kid":"Y7","subject":"Civics - POL Folio 2 (FINAL)","type":"FI"},{"date":"2026-09-14","day":"Mon","kid":"Y7","subject":"Dreamworld Trip (eligible Yr 7/8/9)","type":"EV"},{"date":"2026-10-05","day":"Mon","kid":"Y7","subject":"King's Birthday Holiday","type":"EV"},{"date":"2026-10-26","day":"Mon","kid":"Y7","subject":"Design & Tech - Onguard","type":"FI"},{"date":"2026-10-29","day":"Thu","kid":"Y7","subject":"Science - Food Web Assessment (DUE)","type":"FI"},{"date":"2026-10-29","day":"Thu","kid":"Y7","subject":"ECB","type":"DR"},{"date":"2026-10-29","day":"Thu","kid":"Y7","subject":"Geography - Liveability Part A","type":"FI"},{"date":"2026-11-02","day":"Mon","kid":"Y7","subject":"ECB (FINAL)","type":"FI"},{"date":"2026-11-02","day":"Mon","kid":"Y7","subject":"Performing Arts - Performance","type":"DR"},{"date":"2026-11-02","day":"Mon","kid":"Y7","subject":"Geography - Liveability Part B","type":"FI"},{"date":"2026-11-09","day":"Mon","kid":"Y7","subject":"Year 7 Immunisations","type":"EV"},{"date":"2026-11-11","day":"Wed","kid":"Y7","subject":"English - Task 4 Podcast","type":"DR"},{"date":"2026-11-11","day":"Wed","kid":"Y7","subject":"Design & Tech - Practical Task Review","type":"EV"},{"date":"2026-11-12","day":"Thu","kid":"Y7","subject":"Performing Arts - Performance (FINAL)","type":"FI"},{"date":"2026-11-12","day":"Thu","kid":"Y7","subject":"Geography - Liveability Part C","type":"FI"},{"date":"2026-11-17","day":"Tue","kid":"Y7","subject":"Music - Performance","type":"DR"},{"date":"2026-11-17","day":"Tue","kid":"Y7","subject":"Food Studies - Responding Checkpoint 1","type":"FI"},{"date":"2026-11-18","day":"Wed","kid":"Y7","subject":"Maths - L1 Exam (60 min)","type":"EX"},{"date":"2026-11-19","day":"Thu","kid":"Y7","subject":"Film/Media - Stop-Motion Animation","type":"DR"},{"date":"2026-11-19","day":"Thu","kid":"Y7","subject":"Civics and Citizenship - Folio 1 (FINAL)","type":"FI"},{"date":"2026-11-19","day":"Thu","kid":"Y7","subject":"Geography - Liveability Part D","type":"FI"},{"date":"2026-11-23","day":"Mon","kid":"Y7","subject":"English - Task 4 Podcast (FINAL)","type":"FI"},{"date":"2026-11-23","day":"Mon","kid":"Y7","subject":"Food Studies - Responding Checkpoint 2","type":"FI"},{"date":"2026-11-24","day":"Tue","kid":"Y7","subject":"Music - Artist Statement","type":"DR"},{"date":"2026-11-24","day":"Tue","kid":"Y7","subject":"Visual Art","type":"DR"},{"date":"2026-11-25","day":"Wed","kid":"Y7","subject":"HPE - Project (FINAL)","type":"FI"},{"date":"2026-11-25","day":"Wed","kid":"Y7","subject":"Design & Tech (FINAL)","type":"FI"},{"date":"2026-11-25","day":"Wed","kid":"Y7","subject":"Science - Dichotomous Key Assessment (DUE)","type":"FI"},{"date":"2026-11-25","day":"Wed","kid":"Y7","subject":"Performing Arts - Choreography","type":"DR"},{"date":"2026-11-25","day":"Wed","kid":"Y7","subject":"Geography - Liveability (FINAL)","type":"FI"},{"date":"2026-11-30","day":"Mon","kid":"Y7","subject":"Music - Performance (FINAL)","type":"FI"},{"date":"2026-11-30","day":"Mon","kid":"Y7","subject":"Food Studies - Responding (FINAL)","type":"FI"},{"date":"2026-12-01","day":"Tue","kid":"Y7","subject":"Music - Artist Statement (FINAL)","type":"FI"},{"date":"2026-12-01","day":"Tue","kid":"Y7","subject":"Food Studies - Cooking (FINAL)","type":"FI"},{"date":"2026-12-01","day":"Tue","kid":"Y7","subject":"Film/Media - Stop-Motion (FINAL)","type":"FI"},{"date":"2026-12-01","day":"Tue","kid":"Y7","subject":"Civics and Citizenship - Folio 2 (FINAL)","type":"FI"},{"date":"2026-12-01","day":"Tue","kid":"Y7","subject":"Performing Arts - Choreography (FINAL)","type":"FI"},{"date":"2026-12-01","day":"Tue","kid":"Y7","subject":"Visual Art (FINAL)","type":"FI"},{"date":"2026-12-07","day":"Mon","kid":"Y7","subject":"Alternate Program week","type":"EV"},{"date":"2026-07-16","day":"Thu","kid":"Y11","subject":"Music FIA3 Project","type":"DR"},{"date":"2026-07-16","day":"Thu","kid":"Y11","subject":"Music in Prac - Perform","type":"DR"},{"date":"2026-07-20","day":"Mon","kid":"Y11","subject":"Digital Solutions FA3 Assignment","type":"FI"},{"date":"2026-07-21","day":"Tue","kid":"Y11","subject":"English FIA3 Imaginative Response Exam","type":"EX"},{"date":"2026-07-22","day":"Wed","kid":"Y11","subject":"English FIA3 Imaginative Response Exam","type":"EX"},{"date":"2026-07-23","day":"Thu","kid":"Y11","subject":"English FIA3 Imaginative Response Exam","type":"EX"},{"date":"2026-07-23","day":"Thu","kid":"Y11","subject":"EAL - Monologue (FINAL)","type":"FI"},{"date":"2026-07-23","day":"Thu","kid":"Y11","subject":"Science in Prac - Statement","type":"DR"},{"date":"2026-07-24","day":"Fri","kid":"Y11","subject":"Biology FIA3","type":"DR"},{"date":"2026-07-28","day":"Tue","kid":"Y11","subject":"Cert II Cultural Arts (VAT) cluster 1","type":"FI"},{"date":"2026-07-30","day":"Thu","kid":"Y11","subject":"Visual Art FIA3","type":"FI"},{"date":"2026-07-30","day":"Thu","kid":"Y11","subject":"Physics FIA3","type":"DR"},{"date":"2026-07-31","day":"Fri","kid":"Y11","subject":"SCS FIA3 extended response","type":"FI"},{"date":"2026-07-31","day":"Fri","kid":"Y11","subject":"Cert II Workplace Skills written questions","type":"FI"},{"date":"2026-08-06","day":"Thu","kid":"Y11","subject":"Music FIA3 project (FINAL)","type":"FI"},{"date":"2026-08-06","day":"Thu","kid":"Y11","subject":"Music in Prac C1 (FINAL)","type":"FI"},{"date":"2026-08-06","day":"Thu","kid":"Y11","subject":"FTV FIA3","type":"DR"},{"date":"2026-08-07","day":"Fri","kid":"Y11","subject":"Media FIA3","type":"DR"},{"date":"2026-08-10","day":"Mon","kid":"Y11","subject":"Legal Studies FIA3 Combination response exam","type":"EX"},{"date":"2026-08-12","day":"Wed","kid":"Y11","subject":"Brisbane Show Holiday","type":"EV"},{"date":"2026-08-13","day":"Thu","kid":"Y11","subject":"Visual Art FIA3 (FINAL)","type":"FI"},{"date":"2026-08-13","day":"Thu","kid":"Y11","subject":"Physics FIA3 (FINAL)","type":"FI"},{"date":"2026-08-14","day":"Fri","kid":"Y11","subject":"Biology FIA3 (FINAL)","type":"FI"},{"date":"2026-08-14","day":"Fri","kid":"Y11","subject":"Chemistry FIA3","type":"DR"},{"date":"2026-08-14","day":"Fri","kid":"Y11","subject":"Cert II Workplace Skills project 3","type":"FI"},{"date":"2026-08-20","day":"Thu","kid":"Y11","subject":"Media FIA3 (FINAL)","type":"FI"},{"date":"2026-08-20","day":"Thu","kid":"Y11","subject":"FTV FIA3 (FINAL)","type":"FI"},{"date":"2026-08-21","day":"Fri","kid":"Y11","subject":"BUS FIA3 feasibility report","type":"FI"},{"date":"2026-08-21","day":"Fri","kid":"Y11","subject":"MHS FIA3 research assignment","type":"FI"},{"date":"2026-08-25","day":"Tue","kid":"Y11","subject":"Cert II Cultural Arts (VAT) cluster 2","type":"DR"},{"date":"2026-08-27","day":"Thu","kid":"Y11","subject":"ENE FIA3 VLOG","type":"DR"},{"date":"2026-08-27","day":"Thu","kid":"Y11","subject":"Music in Prac","type":"DR"},{"date":"2026-08-27","day":"Thu","kid":"Y11","subject":"Science in Prac","type":"DR"},{"date":"2026-08-28","day":"Fri","kid":"Y11","subject":"Chemistry FIA3 (FINAL)","type":"FI"},{"date":"2026-09-02","day":"Wed","kid":"Y11","subject":"FTV FIA4 Mock Exam","type":"EX"},{"date":"2026-09-03","day":"Thu","kid":"Y11","subject":"Psychology FIA3 assignment","type":"FI"},{"date":"2026-09-03","day":"Thu","kid":"Y11","subject":"Visual Art FIA4 Mock Exam","type":"EX"},{"date":"2026-09-04","day":"Fri","kid":"Y11","subject":"French/Spanish/Chinese FIA3 presentations (Student Free Day)","type":"FI"},{"date":"2026-09-09","day":"Wed","kid":"Y11","subject":"Cert II Workplace Skills project 4","type":"FI"},{"date":"2026-09-10","day":"Thu","kid":"Y11","subject":"ENE FIA3 VLOG (FINAL)","type":"FI"},{"date":"2026-09-10","day":"Thu","kid":"Y11","subject":"Music in Prac C2 (FINAL)","type":"FI"},{"date":"2026-09-10","day":"Thu","kid":"Y11","subject":"Science in Prac (FINAL)","type":"FI"},{"date":"2026-09-14","day":"Mon","kid":"Y11","subject":"English FIA4 exam","type":"EX"},{"date":"2026-09-14","day":"Mon","kid":"Y11","subject":"EAL FIA4 exam","type":"EX"},{"date":"2026-09-15","day":"Tue","kid":"Y11","subject":"Digital Solutions FIA3 Assignment","type":"FI"},{"date":"2026-09-15","day":"Tue","kid":"Y11","subject":"Physics FIA4 exam","type":"EX"},{"date":"2026-09-16","day":"Wed","kid":"Y11","subject":"MHS FIA4 mini task","type":"FI"},{"date":"2026-09-16","day":"Wed","kid":"Y11","subject":"SCS FIA4 project","type":"FI"},{"date":"2026-09-16","day":"Wed","kid":"Y11","subject":"FTV FIA4 exam","type":"EX"},{"date":"2026-09-17","day":"Thu","kid":"Y11","subject":"Block exams: MAE/MAG/MAM/MAS/Visual Art/Philosophy/Music FIA4","type":"EX"},{"date":"2026-09-18","day":"Fri","kid":"Y11","subject":"Biology FIA4 exam","type":"EX"},{"date":"2026-09-18","day":"Fri","kid":"Y11","subject":"Chemistry FIA4 exam","type":"EX"},{"date":"2026-10-05","day":"Mon","kid":"Y11","subject":"Public Holiday","type":"EV"},{"date":"2026-10-14","day":"Wed","kid":"Y11","subject":"MAE FIA3 PSMT","type":"DR"},{"date":"2026-10-15","day":"Thu","kid":"Y11","subject":"Psychology FIA4 Exam","type":"EX"},{"date":"2026-10-16","day":"Fri","kid":"Y11","subject":"Media FIA4","type":"DR"},{"date":"2026-10-21","day":"Wed","kid":"Y11","subject":"Cert II Workplace Skills teacher questions","type":"FI"},{"date":"2026-10-22","day":"Thu","kid":"Y11","subject":"Cert II VAT Cluster 2","type":"DR"},{"date":"2026-10-26","day":"Mon","kid":"Y11","subject":"MAM IA1 PSMT","type":"DR"},{"date":"2026-10-28","day":"Wed","kid":"Y11","subject":"MAE FIA3 PSMT (FINAL)","type":"FI"},{"date":"2026-10-28","day":"Wed","kid":"Y11","subject":"Legal Studies FIA4 exam","type":"EX"},{"date":"2026-10-30","day":"Fri","kid":"Y11","subject":"Media FIA4 (FINAL)","type":"FI"},{"date":"2026-11-05","day":"Thu","kid":"Y11","subject":"ENE IA1 Speech","type":"DR"},{"date":"2026-11-06","day":"Fri","kid":"Y11","subject":"FTV IA1","type":"DR"},{"date":"2026-11-06","day":"Fri","kid":"Y11","subject":"Science in Prac","type":"DR"},{"date":"2026-11-06","day":"Fri","kid":"Y11","subject":"Cert II/III Visual Arts Painting","type":"DR"},{"date":"2026-11-09","day":"Mon","kid":"Y11","subject":"MAS IA1 PSMT","type":"DR"},{"date":"2026-11-11","day":"Wed","kid":"Y11","subject":"Awards Night","type":"EV"},{"date":"2026-11-12","day":"Thu","kid":"Y11","subject":"MAM IA1 PSMT (FINAL)","type":"FI"},{"date":"2026-11-12","day":"Thu","kid":"Y11","subject":"Music IA1","type":"DR"},{"date":"2026-11-12","day":"Thu","kid":"Y11","subject":"Music in Prac B1","type":"DR"},{"date":"2026-11-12","day":"Thu","kid":"Y11","subject":"ENG IA1 Speech","type":"DR"},{"date":"2026-11-13","day":"Fri","kid":"Y11","subject":"SCS IA1 (FINAL)","type":"FI"},{"date":"2026-11-13","day":"Fri","kid":"Y11","subject":"BUS IA1 Combination response (2hr15)","type":"FI"},{"date":"2026-11-13","day":"Fri","kid":"Y11","subject":"Visual Art IA1","type":"DR"},{"date":"2026-11-16","day":"Mon","kid":"Y11","subject":"Cert II VAT cluster 3","type":"FI"},{"date":"2026-11-17","day":"Tue","kid":"Y11","subject":"ENE IA1 Speech (FINAL)","type":"FI"},{"date":"2026-11-19","day":"Thu","kid":"Y11","subject":"Music IA1 (FINAL)","type":"FI"},{"date":"2026-11-19","day":"Thu","kid":"Y11","subject":"Music in Prac B1 (FINAL)","type":"FI"},{"date":"2026-11-20","day":"Fri","kid":"Y11","subject":"FTV IA1 (FINAL)","type":"FI"},{"date":"2026-11-20","day":"Fri","kid":"Y11","subject":"Science in Prac (FINAL)","type":"FI"},{"date":"2026-11-23","day":"Mon","kid":"Y11","subject":"Biology IA1 (FINAL)","type":"FI"},{"date":"2026-11-23","day":"Mon","kid":"Y11","subject":"Physics IA1 (FINAL)","type":"FI"},{"date":"2026-11-23","day":"Mon","kid":"Y11","subject":"Chemistry IA1 (FINAL)","type":"FI"},{"date":"2026-11-24","day":"Tue","kid":"Y11","subject":"Block exam timetable week (24-27 Nov)","type":"EX"},{"date":"2026-11-27","day":"Fri","kid":"Y11","subject":"MAS IA1 PSMT (FINAL)","type":"FI"},{"date":"2026-11-27","day":"Fri","kid":"Y11","subject":"FINAL DAY: Psychology/Digital Solutions/French/Spanish/Chinese/ENG Speech/Cert II Cultural Arts/Visual Arts Painting/MAE-MAG Exam/MHS exam/Philosophy exam/Visual Art IA1 (FINAL)","type":"FI"}];
 
@@ -308,34 +380,48 @@ const COLUMNS = [
   {key:'done', name:'Done', dot:'var(--leaf)'},
 ];
 
-let status = {}; // sanitised-id -> 'inprogress'|'done'  (absent = todo)
+let status = {};   // sanitised-id -> 'inprogress'|'done'  (absent = todo)
+let hidden = {};   // sanitised-id -> true
 let currentKidFilter = 'ALL';
-let storageReady = false;
+let statusReady = false;
+let hiddenReady = false;
+let hiddenPanelOpen = false;
 
 function itemId(it){ return it.date + '|' + it.kid + '|' + it.subject; }
 // Firebase RTDB keys can't contain . # $ [ ] /
 function dbKey(id){ return id.replace(/[.#$\[\]\/]/g, '_'); }
 function getStatus(it){ return status[dbKey(itemId(it))] || 'todo'; }
+function isHidden(it){ return !!hidden[dbKey(itemId(it))]; }
+
+function showConnError(){ document.getElementById('connError').style.display = 'block'; }
+function hideConnError(){ document.getElementById('connError').style.display = 'none'; }
 
 onValue(statusRef, (snapshot) => {
   status = snapshot.val() || {};
-  storageReady = true;
+  statusReady = true;
   document.getElementById('liveDot').classList.add('live');
-  document.getElementById('connError').style.display = 'none';
+  hideConnError();
   render();
-}, (err) => {
-  console.error('Firebase read error', err);
-  document.getElementById('connError').style.display = 'block';
-});
+}, () => showConnError());
+
+onValue(hiddenRef, (snapshot) => {
+  hidden = snapshot.val() || {};
+  hiddenReady = true;
+  render();
+}, () => showConnError());
 
 function setStatus(id, val){
   const key = dbKey(id);
   if(val === 'todo') delete status[key];
   else status[key] = val;
-  set(statusRef, status).catch(err => {
-    console.error('Could not save', err);
-    document.getElementById('connError').style.display = 'block';
-  });
+  set(statusRef, status).catch(showConnError);
+  render();
+}
+
+function setHidden(id, val){
+  const key = dbKey(id);
+  if(val) hidden[key] = true; else delete hidden[key];
+  set(hiddenRef, hidden).catch(showConnError);
   render();
 }
 
@@ -362,14 +448,44 @@ function renderNotesRibbon(){
   const upcoming = ITEMS
     .filter(it => it.type === 'EV')
     .filter(it => currentKidFilter === 'ALL' || it.kid === currentKidFilter)
+    .filter(it => !isHidden(it))
     .filter(it => daysUntil(it.date) >= -1)
     .sort((a,b) => a.date.localeCompare(b.date))
     .slice(0, 6);
   if(upcoming.length === 0){ ribbon.innerHTML = ''; ribbon.style.display = 'none'; return; }
   ribbon.style.display = 'flex';
   ribbon.innerHTML = '<span class="ribbon-label">Upcoming</span>' + upcoming.map(it => `
-    <span class="note-chip"><span class="kdot"></span>${it.subject} <span class="ndate mono">${fmtDate(it.date)}</span></span>
+    <span class="note-chip"><span class="kdot"></span>${it.subject} <span class="ndate num">${fmtDate(it.date)}</span></span>
   `).join('');
+}
+
+function renderHiddenPanel(){
+  const btn = document.getElementById('hiddenBtn');
+  const list = document.getElementById('hiddenList');
+  const panel = document.getElementById('hiddenPanel');
+
+  const hiddenItems = ITEMS
+    .filter(it => it.type !== 'EV')
+    .filter(it => currentKidFilter === 'ALL' || it.kid === currentKidFilter)
+    .filter(it => isHidden(it))
+    .sort((a,b) => a.date.localeCompare(b.date));
+
+  btn.textContent = `Removed (${hiddenItems.length})`;
+  panel.classList.toggle('open', hiddenPanelOpen);
+
+  if(hiddenItems.length === 0){
+    list.innerHTML = '<div class="hidden-empty">Nothing removed — every card for this filter is on the board.</div>';
+    return;
+  }
+  list.innerHTML = hiddenItems.map(it => `
+    <span class="hidden-chip">
+      ${it.subject} <span style="color:var(--text-faint)">(${it.kid})</span>
+      <button class="restore-btn" data-id="${itemId(it)}" title="Restore">+</button>
+    </span>
+  `).join('');
+  list.querySelectorAll('.restore-btn').forEach(b => {
+    b.addEventListener('click', () => setHidden(b.dataset.id, false));
+  });
 }
 
 function cardHtml(it){
@@ -378,6 +494,7 @@ function cardHtml(it){
   const idx = STATUSES.indexOf(st);
   const badge = dateBadge(it.date);
   return `<div class="card type-${it.type}" draggable="true" data-id="${id}">
+    <button class="remove-btn" data-id="${id}" title="Doesn't apply to me — remove">&times;</button>
     <div class="subj">${it.subject}</div>
     <div class="chip-row">
       <span class="chip kid-${it.kid}">${it.kid}</span>
@@ -395,10 +512,15 @@ function cardHtml(it){
 
 function render(){
   renderNotesRibbon();
+  renderHiddenPanel();
   const board = document.getElementById('board');
-  if(!storageReady){ board.innerHTML = '<div class="loading">Loading the board…</div>'; return; }
+  if(!statusReady || !hiddenReady){ board.innerHTML = '<div class="loading">Loading the board…</div>'; return; }
 
-  const filtered = ITEMS.filter(it => it.type !== 'EV').filter(it => currentKidFilter === 'ALL' || it.kid === currentKidFilter);
+  const filtered = ITEMS
+    .filter(it => it.type !== 'EV')
+    .filter(it => currentKidFilter === 'ALL' || it.kid === currentKidFilter)
+    .filter(it => !isHidden(it));
+
   const buckets = {todo:[], inprogress:[], done:[]};
   filtered.forEach(it => buckets[getStatus(it)].push(it));
   Object.keys(buckets).forEach(k => buckets[k].sort((a,b) => a.date.localeCompare(b.date)));
@@ -411,7 +533,7 @@ function render(){
     return `<div class="column" data-col="${col.key}">
       <div class="col-head">
         <span class="name"><span class="col-dot" style="background:${col.dot}"></span>${col.name}</span>
-        <span class="count mono">${items.length}</span>
+        <span class="count num">${items.length}</span>
       </div>
       <div class="col-body" data-col="${col.key}">${body}</div>
     </div>`;
@@ -428,6 +550,12 @@ function attachHandlers(){
       const idx = STATUSES.indexOf(getStatus(it));
       if(btn.dataset.act === 'back' && idx > 0) setStatus(id, STATUSES[idx-1]);
       if(btn.dataset.act === 'fwd' && idx < 2) setStatus(id, STATUSES[idx+1]);
+    });
+  });
+  document.querySelectorAll('.remove-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      setHidden(btn.dataset.id, true);
     });
   });
   document.querySelectorAll('.card[draggable="true"]').forEach(card => {
@@ -459,6 +587,11 @@ document.getElementById('kidFilter').addEventListener('click', (e) => {
   if(!btn) return;
   currentKidFilter = btn.dataset.kid;
   document.querySelectorAll('#kidFilter .btn').forEach(b => b.classList.toggle('active', b === btn));
+  render();
+});
+
+document.getElementById('hiddenBtn').addEventListener('click', () => {
+  hiddenPanelOpen = !hiddenPanelOpen;
   render();
 });
 
