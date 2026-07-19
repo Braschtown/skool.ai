@@ -408,12 +408,22 @@ document.getElementById('kidFilter').addEventListener('click', (e) => {
   if(!btn) return;
   currentKidFilter = btn.dataset.kid;
   document.querySelectorAll('#kidFilter .btn').forEach(b => b.classList.toggle('active', b === btn));
+  document.getElementById('kidFilter').classList.remove('open');
+  document.getElementById('filterToggleBtn').classList.remove('active');
   render();
 });
 
 document.getElementById('searchInput').addEventListener('input', (e) => {
   searchTerm = e.target.value.trim().toLowerCase();
   render();
+});
+
+const filterToggleBtn = document.getElementById('filterToggleBtn');
+const kidFilterEl = document.getElementById('kidFilter');
+
+filterToggleBtn.addEventListener('click', () => {
+  const isOpen = kidFilterEl.classList.toggle('open');
+  filterToggleBtn.classList.toggle('active', isOpen);
 });
 
 const menuBtn = document.getElementById('menuBtn');
