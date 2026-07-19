@@ -1,4 +1,4 @@
-# Homework Board
+# skool.ai
 
 A shared kanban board for tracking school assessments (drafts, finals, exams) for Year 7 and Year 11, Semester 2 2026. Card positions sync live across everyone who has the page open, via Firebase Realtime Database.
 
