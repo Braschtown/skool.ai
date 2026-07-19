@@ -17,6 +17,7 @@ const statusRef = ref(db, 'homeworkBoard/status');
 const hiddenRef = ref(db, 'homeworkBoard/hidden');
 const dataRef = ref(db, 'homeworkBoard/customData');
 const flagsRef = ref(db, 'homeworkBoard/flags');
+const dateOverridesRef = ref(db, 'homeworkBoard/dateOverrides');
 
 // Replaced with a SHA-256 hash of the parent PIN at deploy time by the GitHub Actions workflow.
 // Never edit this by hand — set the real PIN via the RESET_PIN repository secret instead.
@@ -89,11 +90,13 @@ const COLUMNS = [
 let status = {};   // sanitised-id -> 'inprogress'|'done'  (absent = todo)
 let hidden = {};   // sanitised-id -> true
 let flags = {};    // sanitised-id -> { note: string }
+let dateOverrides = {}; // sanitised-id -> "YYYY-MM-DD" — a corrected due date, keyed off the item's ORIGINAL date so it never loses its status/flag/hidden history when edited
 let currentKidFilter = 'ALL';
 let searchTerm = '';
 let statusReady = false;
 let hiddenReady = false;
 let flagsReady = false;
+let dateOverridesReady = false;
 let hiddenPanelOpen = false;
 
 function itemId(it){ return it.date + '|' + it.kid + '|' + it.subject; }
@@ -102,6 +105,7 @@ function dbKey(id){ return id.replace(/[.#$\[\]\/]/g, '_'); }
 function getStatus(it){ return status[dbKey(itemId(it))] || 'todo'; }
 function isHidden(it){ return !!hidden[dbKey(itemId(it))]; }
 function getFlag(it){ return flags[dbKey(itemId(it))] || null; }
+function effectiveDate(it){ return dateOverrides[dbKey(itemId(it))] || it.date; }
 function escapeAttr(str){
   return String(str).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
@@ -125,6 +129,12 @@ onValue(hiddenRef, (snapshot) => {
 onValue(flagsRef, (snapshot) => {
   flags = snapshot.val() || {};
   flagsReady = true;
+  render();
+}, () => showConnError());
+
+onValue(dateOverridesRef, (snapshot) => {
+  dateOverrides = snapshot.val() || {};
+  dateOverridesReady = true;
   render();
 }, () => showConnError());
 
@@ -198,7 +208,7 @@ function botCategory(){
 
   const active = ITEMS.filter(it => it.type !== 'EV' && !isHidden(it) && getStatus(it) !== 'done');
   if(active.length === 0) return 'CALM';
-  const dus = active.map(it => daysUntil(it.date));
+  const dus = active.map(it => daysUntil(effectiveDate(it)));
   const minDu = Math.min(...dus);
   if(minDu < 0) return 'OVERDUE';
   if(minDu <= 1) return 'TOMORROW';
@@ -255,6 +265,14 @@ function toggleFlag(id){
   render();
 }
 
+function setDateOverride(id, originalDate, newDate){
+  const key = dbKey(id);
+  if(newDate === originalDate) delete dateOverrides[key]; // back to original — clean up rather than store a no-op
+  else dateOverrides[key] = newDate;
+  set(dateOverridesRef, dateOverrides).catch(showConnError);
+  render();
+}
+
 function saveFlagNote(id, note){
   const key = dbKey(id);
   if(!flags[key]) return; // was unflagged mid-edit, nothing to save
@@ -306,8 +324,7 @@ function renderHiddenPanel(){
     .filter(it => it.type !== 'EV')
     .filter(it => currentKidFilter === 'ALL' || it.kid === currentKidFilter)
     .filter(it => isHidden(it))
-    .sort((a,b) => a.date.localeCompare(b.date));
-
+    .sort((a,b) => effectiveDate(a).localeCompare(effectiveDate(b)));
   btn.textContent = `Removed (${hiddenItems.length})`;
   panel.classList.toggle('open', hiddenPanelOpen);
 
@@ -330,7 +347,9 @@ function cardHtml(it){
   const id = itemId(it);
   const st = getStatus(it);
   const idx = STATUSES.indexOf(st);
-  const badge = dateBadge(it.date);
+  const effDate = effectiveDate(it);
+  const isEdited = effDate !== it.date;
+  const badge = dateBadge(effDate);
   const flag = getFlag(it);
   const isFlagged = !!flag;
   return `<div class="card type-${it.type} ${isFlagged ? 'flagged' : ''}" draggable="true" data-id="${id}">
@@ -341,21 +360,22 @@ function cardHtml(it){
     <div class="chip-row">
       <span class="chip kid-${it.kid}">${it.kid}</span>
       <span class="chip type-${it.type}-chip">${TYPE_LABEL[it.type]}</span>
-      ${isFlagged ? '<span class="chip flag-chip"><span class="material-symbols-outlined">flag</span>Flagged</span>' : ''}
     </div>
     ${isFlagged ? `<div class="flag-note-wrap">
       <input type="text" class="flag-note" data-id="${id}" maxlength="200" placeholder="Add a note for them (optional)" value="${escapeAttr(flag.note || '')}">
     </div>` : ''}
     <div class="badge-row">
-      <span class="date-badge ${badge.cls}">${badge.label}</span>
+      <button class="date-badge ${badge.cls}" data-id="${id}" data-tip="${isEdited ? 'Date corrected — tap to change' : 'Tap to correct this date'}">
+        ${badge.label}${isEdited ? '<span class="material-symbols-outlined edited-icon">edit</span>' : ''}
+      </button>
       <div class="card-actions">
         <button class="flag-btn ${isFlagged ? 'active' : ''}" data-id="${id}" data-tip="${isFlagged ? 'Unflag' : 'Flag for follow-up'}">
           <span class="material-symbols-outlined">flag</span>
         </button>
         <div class="move-btns">
-          <button class="move-btn" ${idx===0?'disabled':''} data-act="back" data-id="${id}" data-tip="Move back (are you sure?)">
+          ${idx > 0 ? `<button class="move-btn" data-act="back" data-id="${id}" data-tip="Move back (are you sure?)">
             <span class="material-symbols-outlined">chevron_backward</span>
-          </button>
+          </button>` : ''}
           <button class="move-btn" ${idx===2?'disabled':''} data-act="fwd" data-id="${id}" data-tip="Move forward">
             <span class="material-symbols-outlined">chevron_forward</span>
           </button>
@@ -369,7 +389,7 @@ function render(){
   renderNotesRibbon();
   renderHiddenPanel();
   const board = document.getElementById('board');
-  if(!statusReady || !hiddenReady || !itemsReady || !flagsReady){ board.innerHTML = '<div class="loading">Loading the board…</div>'; return; }
+  if(!statusReady || !hiddenReady || !itemsReady || !flagsReady || !dateOverridesReady){ board.innerHTML = '<div class="loading">Loading the board…</div>'; return; }
 
   const filtered = ITEMS
     .filter(it => it.type !== 'EV')
@@ -381,7 +401,8 @@ function render(){
   filtered.forEach(it => buckets[getStatus(it)].push(it));
   const TYPE_URGENCY = { EX: 0, FI: 1, DR: 2 };
   Object.keys(buckets).forEach(k => buckets[k].sort((a,b) => {
-    if(a.date !== b.date) return a.date.localeCompare(b.date);
+    const ad = effectiveDate(a), bd = effectiveDate(b);
+    if(ad !== bd) return ad.localeCompare(bd);
     return TYPE_URGENCY[a.type] - TYPE_URGENCY[b.type];
   }));
 
@@ -422,6 +443,34 @@ function attachHandlers(){
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
       toggleFlag(btn.dataset.id);
+    });
+  });
+  document.querySelectorAll('.date-badge').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const id = btn.dataset.id;
+      const it = ITEMS.find(x => itemId(x) === id);
+      if(!it) return;
+
+      const pin = prompt('Parent PIN required to change this due date:');
+      if(pin === null || pin.trim() === '') return;
+      const ok = await checkPin(pin.trim());
+      if(!ok){ alert("Nope. That's not it."); return; }
+
+      const current = effectiveDate(it);
+      const input = prompt(`New date for "${it.subject}" (format: YYYY-MM-DD)`, current);
+      if(input === null) return;
+      const trimmed = input.trim();
+      if(!/^\d{4}-\d{2}-\d{2}$/.test(trimmed)){
+        alert('Please enter the date as YYYY-MM-DD, for example 2026-08-21.');
+        return;
+      }
+      const d = new Date(trimmed + 'T00:00:00');
+      if(isNaN(d.getTime())){
+        alert("That doesn't look like a real date.");
+        return;
+      }
+      setDateOverride(id, it.date, trimmed);
     });
   });
   document.querySelectorAll('.flag-note').forEach(input => {
