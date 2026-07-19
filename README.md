@@ -1,6 +1,18 @@
 # skool.ai — Homework Board
 
-A shared kanban board for tracking school assessments (drafts, finals, exams) for Year 7 and Year 11, Semester 2 2026. Card positions sync live across everyone who has the page open, via Firebase Realtime Database.
+A shared kanban board for tracking school assessments (drafts, finals, exams) for Year 7 and Year 11. Card positions sync live across everyone who has the page open, via Firebase Realtime Database.
+
+## File layout
+
+The app is now split into separate files instead of one big HTML file:
+
+| File | What it is |
+|---|---|
+| `index.html` | Page structure only |
+| `styles.css` | All styling |
+| `app.js` | All logic (Firebase, rendering, the gremlin, PIN checking) |
+| `data.json` | The bundled/default assessment calendar |
+| `.github/workflows/deploy.yml` | Deploys the site and bakes in the PIN hash |
 
 ## Setup (one-time)
 
@@ -27,47 +39,63 @@ Click **Publish**. This scopes access to only the `homeworkBoard` path and block
 
 ### 2. Add the repository secret (the parent PIN)
 
-This is what gates the "Reset board" button to just the two of you.
+Gates "Reset board", "Upload new calendar", and "Restore original calendar" to just the two of you.
 
-In your GitHub repo: **Settings → Secrets and variables → Actions → New repository secret**.
+**Settings → Secrets and variables → Actions → New repository secret**
 - Name: `RESET_PIN`
-- Value: whatever code you want (a 4+ digit PIN, or a short phrase — either works)
+- Value: whatever code you want
 
-Nobody, including you, will be able to see this value again once saved — that's normal, GitHub secrets are write-only. If you ever forget it, just create a new secret with the same name to overwrite it.
-
-**Important:** the PIN itself never appears in the repository or the live site. Only its SHA-256 hash gets baked into the page during deployment (see the workflow below), so even someone reading the site's source code can't recover the actual PIN, only confirm a guess against the hash.
+The PIN itself never appears in the repo or the live site, only its SHA-256 hash gets baked into `app.js` at deploy time.
 
 ### 3. Add the files to your repo
 
-Upload these three files, keeping the folder structure:
+Upload all of these, keeping the structure:
 - `index.html` → repo root
+- `styles.css` → repo root
+- `app.js` → repo root
+- `data.json` → repo root
 - `README.md` → repo root
-- `deploy.yml` → **must go inside a folder named `.github/workflows/`** (create that folder path when uploading — GitHub lets you type the full path in the "Add file" box, e.g. `.github/workflows/deploy.yml`)
+- `deploy.yml` → **must go inside `.github/workflows/`** (type the full path `.github/workflows/deploy.yml` in GitHub's "Add file" box so it creates the folders)
 
 ### 4. Switch Pages to deploy via GitHub Actions
 
-**Settings → Pages → Build and deployment → Source → GitHub Actions** (not "Deploy from a branch" — that older method won't run the PIN-hashing step).
+**Settings → Pages → Build and deployment → Source → GitHub Actions.**
 
 ### 5. Trigger the first deploy
 
-Any push to `main` runs the workflow automatically. If you've just uploaded the files, that push already triggered it — check the **Actions** tab in your repo to watch it run (takes about a minute). Once it's green, your site is live at:
+Any push to `main` runs the workflow. Check the **Actions** tab to watch it (about a minute), then the site's live at:
 
 ```
 https://<your-username>.github.io/<repo-name>/
 ```
 
+## Uploading a new calendar (e.g. next year)
+
+No GitHub or code needed for this bit. From the **≡ menu** in the app itself:
+
+1. Click **Upload new calendar…**
+2. Enter the parent PIN when prompted
+3. Choose a `.json` file in the same format as `data.json` (an array of objects, each with `date`, `day`, `kid`, `subject`, `type`)
+4. Confirm — it replaces the calendar for everyone, on every device, instantly, no redeploy needed
+
+The file gets validated before anything is saved (checks dates are `YYYY-MM-DD`, days are `Mon`–`Sun`, and `type` is one of `DR`/`FI`/`EX`/`EV`), so a malformed file gets rejected with a specific error rather than breaking the board.
+
+To go back to the bundled `data.json`, use **Restore original calendar** from the same menu (also PIN-gated).
+
+**Where does a new file come from?** Send the new school PDF calendar to Claude and ask for a `data.json` in this app's format — it'll hold the same date-parsing care as the original (weekday cross-checked against the actual calendar date, holidays that apply to both kids merged into one entry instead of listed twice).
+
 ## Changing the PIN later
 
-Update the `RESET_PIN` secret (Settings → Secrets and variables → Actions → edit `RESET_PIN`), then re-run the workflow from the **Actions** tab (or just push any small change to `main`) so the new hash gets baked in.
+Update the `RESET_PIN` secret, then re-run the workflow from the **Actions** tab (or push any small change to `main`).
 
 ## Forgot the PIN entirely?
 
-You can still reset the board by hand: Firebase console → **Realtime Database** → find `homeworkBoard/status` → delete that node. Everything moves back to To Do.
+Reset by hand instead: Firebase console → **Realtime Database** → delete the `homeworkBoard/status` node to clear the board, or `homeworkBoard/customData` to fall back to the bundled calendar.
 
-## Updating the assessment dates
+## Holidays and shared dates
 
-If the school sends an updated calendar mid-term, send the new PDF back to Claude and ask for a refreshed `index.html` — the assessment data is baked into the file as a small JSON block near the bottom, so the whole file gets regenerated and just needs re-uploading (the PIN hash placeholder stays intact, no need to touch the secret again).
+Dates that apply to both boys (school-wide holidays, pupil-free days) are stored once with `"kid": "BOTH"` rather than duplicated per child, so they only ever show up once in the "Upcoming" ribbon regardless of which kid filter is selected.
 
 ## How the sync works
 
-Everyone's board reads and writes to the same `homeworkBoard/status` and `homeworkBoard/hidden` paths in your Firebase Realtime Database. Card moves and removed cards update for everyone else's open tab live, no refresh needed. Only the Reset button is PIN-gated — dragging, ticking off, and removing/restoring cards work for anyone.
+Everyone's board reads and writes to the same Firebase paths (`homeworkBoard/status`, `homeworkBoard/hidden`, `homeworkBoard/customData`). Card moves, removed cards, and calendar uploads all update for everyone else's open tab live, no refresh needed. Only Reset, Upload, and Restore are PIN-gated — dragging, ticking off, and removing/restoring cards work for anyone.
