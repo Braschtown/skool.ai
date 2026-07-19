@@ -42,17 +42,17 @@
     border-bottom:1px solid var(--line);
     display:flex;
     flex-direction:column;
-    gap:16px;
+    gap:10px;
   }
-  .header-top{
+  .htitle-wrap{
     display:flex;
-    align-items:flex-start;
+    align-items:center;
     justify-content:space-between;
     gap:16px;
     flex-wrap:wrap;
   }
-  .htitle-wrap{display:flex;align-items:center;gap:11px;}
-  .htitle-wrap .dot{width:10px;height:10px;border-radius:50%;background:var(--marker);box-shadow:0 0 12px var(--marker);}
+  .htitle-text{display:flex;align-items:center;gap:11px;}
+  .htitle-wrap .dot{width:10px;height:10px;border-radius:50%;background:var(--marker);box-shadow:0 0 12px var(--marker);flex-shrink:0;}
   .htitle-wrap .dot.live{background:var(--leaf);box-shadow:0 0 12px var(--leaf);}
   h1{
     font-family:'Orbitron',sans-serif;
