@@ -1,0 +1,52 @@
+name: Deploy skool.ai to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Inject parent PIN hash
+        env:
+          RESET_PIN: ${{ secrets.RESET_PIN }}
+        run: |
+          if [ -z "$RESET_PIN" ]; then
+            echo "::error::RESET_PIN repository secret is not set. Add it under Settings > Secrets and variables > Actions."
+            exit 1
+          fi
+          HASH=$(printf '%s' "$RESET_PIN" | sha256sum | cut -d' ' -f1)
+          sed -i "s/__PIN_HASH__/$HASH/g" index.html
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
