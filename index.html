@@ -12,11 +12,11 @@
 <body>
 
 <header>
-  <div>
-    <div class="htitle-wrap"><span class="dot" id="liveDot"></span><h1>skool.ai</h1></div>
-    <div class="sub">Homework Board · Semester 2 2026</div>
-  </div>
-  <div class="controls">
+  <div class="header-top">
+    <div>
+      <div class="htitle-wrap"><span class="dot" id="liveDot"></span><h1>skool.ai</h1></div>
+      <div class="sub">Homework Board · Semester 2 2026</div>
+    </div>
     <div class="controls-icons">
       <div class="bot-wrap">
         <button class="bot-btn" id="botBtn" title="Hover for a word from the gremlin (he only speaks once per 10 min)">
@@ -39,11 +39,11 @@
         <input type="file" id="uploadInput" accept="application/json" style="display:none">
       </div>
     </div>
-    <div id="kidFilter" style="display:flex;gap:6px;">
-      <button class="btn active" data-kid="ALL">Everyone</button>
-      <button class="btn" data-kid="Y7">Year 7</button>
-      <button class="btn" data-kid="Y11">Year 11</button>
-    </div>
+  </div>
+  <div id="kidFilter" class="filter-row">
+    <button class="btn active" data-kid="ALL">Everyone</button>
+    <button class="btn" data-kid="Y7">Year 7</button>
+    <button class="btn" data-kid="Y11">Year 11</button>
   </div>
 </header>
 
