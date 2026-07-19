@@ -394,6 +394,7 @@
   .card.type-DR{border-top-color:var(--marker);}
   .card.type-FI{border-top-color:var(--coral);}
   .card.type-EX{border-top-color:var(--plum);}
+  .card.flagged{box-shadow:0 0 0 1.5px var(--overdue) inset;}
 
   [data-tip]{position:relative;}
   [data-tip]:hover::after{
@@ -432,6 +433,21 @@
 
   .card .subj{font-size:15px;font-weight:700;line-height:1.4;margin-bottom:14px;padding-right:32px;}
   .card .chip-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+  .flag-note-wrap{margin:-6px 0 14px;}
+  .flag-note{
+    width:100%;
+    background:rgba(255,76,76,0.08);
+    border:1px solid rgba(255,76,76,0.3);
+    border-radius:7px;
+    padding:7px 10px;
+    font-family:'Raleway',sans-serif;
+    font-size:12px;
+    font-weight:500;
+    color:var(--text);
+    outline:none;
+  }
+  .flag-note::placeholder{color:var(--text-faint);}
+  .flag-note:focus{border-color:var(--overdue);}
   .chip{
     font-size:10.5px;
     font-weight:800;
@@ -443,6 +459,17 @@
   }
   .chip.kid-Y7{background:var(--y7);}
   .chip.kid-Y11{background:var(--y11);}
+  .chip.flag-chip{
+    background:var(--overdue);
+    color:#fff;
+    display:inline-flex;
+    align-items:center;
+    gap:3px;
+  }
+  .chip.flag-chip .material-symbols-outlined{
+    font-size:11px;
+    font-variation-settings:'opsz' 20, 'wght' 700, 'FILL' 1, 'GRAD' 0;
+  }
   .chip.type-DR-chip{background:var(--marker);}
   .chip.type-FI-chip{background:var(--coral);}
   .chip.type-EX-chip{background:var(--plum);}
@@ -475,6 +502,22 @@
   .move-btn:hover{background:var(--marker);color:#1A1400;border-color:var(--marker);transform:scale(1.08);}
   .move-btn:disabled{opacity:0.22;cursor:default;}
   .move-btn:disabled:hover{background:rgba(255,255,255,0.05);color:var(--text);border-color:var(--line);transform:none;}
+
+  .card-actions{display:flex;align-items:center;gap:6px;}
+  .flag-btn{
+    width:32px;height:32px;
+    border-radius:8px;
+    border:1px solid var(--line);
+    background:rgba(255,255,255,0.05);
+    color:var(--text-dim);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;
+    transition:background .15s ease, color .15s ease, border-color .15s ease, transform .15s ease;
+  }
+  .flag-btn .material-symbols-outlined{font-size:18px;font-variation-settings:'opsz' 24, 'wght' 500, 'FILL' 0, 'GRAD' 0;}
+  .flag-btn:hover{border-color:var(--overdue);color:var(--overdue);transform:scale(1.08);}
+  .flag-btn.active{background:var(--overdue);border-color:var(--overdue);color:#fff;}
+  .flag-btn.active .material-symbols-outlined{font-variation-settings:'opsz' 24, 'wght' 500, 'FILL' 1, 'GRAD' 0;}
 
   footer{
     padding:18px 24px 44px;

@@ -16,6 +16,7 @@ const db = getDatabase(app);
 const statusRef = ref(db, 'homeworkBoard/status');
 const hiddenRef = ref(db, 'homeworkBoard/hidden');
 const dataRef = ref(db, 'homeworkBoard/customData');
+const flagsRef = ref(db, 'homeworkBoard/flags');
 
 // Replaced with a SHA-256 hash of the parent PIN at deploy time by the GitHub Actions workflow.
 // Never edit this by hand — set the real PIN via the RESET_PIN repository secret instead.
@@ -87,10 +88,12 @@ const COLUMNS = [
 
 let status = {};   // sanitised-id -> 'inprogress'|'done'  (absent = todo)
 let hidden = {};   // sanitised-id -> true
+let flags = {};    // sanitised-id -> { note: string }
 let currentKidFilter = 'ALL';
 let searchTerm = '';
 let statusReady = false;
 let hiddenReady = false;
+let flagsReady = false;
 let hiddenPanelOpen = false;
 
 function itemId(it){ return it.date + '|' + it.kid + '|' + it.subject; }
@@ -98,6 +101,10 @@ function itemId(it){ return it.date + '|' + it.kid + '|' + it.subject; }
 function dbKey(id){ return id.replace(/[.#$\[\]\/]/g, '_'); }
 function getStatus(it){ return status[dbKey(itemId(it))] || 'todo'; }
 function isHidden(it){ return !!hidden[dbKey(itemId(it))]; }
+function getFlag(it){ return flags[dbKey(itemId(it))] || null; }
+function escapeAttr(str){
+  return String(str).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
 
 function showConnError(){ document.getElementById('connError').style.display = 'block'; }
 function hideConnError(){ document.getElementById('connError').style.display = 'none'; }
@@ -112,6 +119,12 @@ onValue(statusRef, (snapshot) => {
 onValue(hiddenRef, (snapshot) => {
   hidden = snapshot.val() || {};
   hiddenReady = true;
+  render();
+}, () => showConnError());
+
+onValue(flagsRef, (snapshot) => {
+  flags = snapshot.val() || {};
+  flagsReady = true;
   render();
 }, () => showConnError());
 
@@ -234,6 +247,21 @@ function setHidden(id, val){
   render();
 }
 
+function toggleFlag(id){
+  const key = dbKey(id);
+  if(flags[key]) delete flags[key];
+  else flags[key] = { note: '' };
+  set(flagsRef, flags).catch(showConnError);
+  render();
+}
+
+function saveFlagNote(id, note){
+  const key = dbKey(id);
+  if(!flags[key]) return; // was unflagged mid-edit, nothing to save
+  flags[key] = { note: note.slice(0, 200) };
+  set(flagsRef, flags).catch(showConnError);
+}
+
 function daysUntil(dateStr){
   const today = new Date(); today.setHours(0,0,0,0);
   const d = new Date(dateStr + 'T00:00:00');
@@ -303,7 +331,9 @@ function cardHtml(it){
   const st = getStatus(it);
   const idx = STATUSES.indexOf(st);
   const badge = dateBadge(it.date);
-  return `<div class="card type-${it.type}" draggable="true" data-id="${id}">
+  const flag = getFlag(it);
+  const isFlagged = !!flag;
+  return `<div class="card type-${it.type} ${isFlagged ? 'flagged' : ''}" draggable="true" data-id="${id}">
     <button class="remove-btn" data-id="${id}" data-tip="Doesn't apply to me — remove">
       <span class="material-symbols-outlined">close</span>
     </button>
@@ -311,16 +341,25 @@ function cardHtml(it){
     <div class="chip-row">
       <span class="chip kid-${it.kid}">${it.kid}</span>
       <span class="chip type-${it.type}-chip">${TYPE_LABEL[it.type]}</span>
+      ${isFlagged ? '<span class="chip flag-chip"><span class="material-symbols-outlined">flag</span>Flagged</span>' : ''}
     </div>
+    ${isFlagged ? `<div class="flag-note-wrap">
+      <input type="text" class="flag-note" data-id="${id}" maxlength="200" placeholder="Add a note for them (optional)" value="${escapeAttr(flag.note || '')}">
+    </div>` : ''}
     <div class="badge-row">
       <span class="date-badge ${badge.cls}">${badge.label}</span>
-      <div class="move-btns">
-        <button class="move-btn" ${idx===0?'disabled':''} data-act="back" data-id="${id}" data-tip="Move back (are you sure?)">
-          <span class="material-symbols-outlined">chevron_backward</span>
+      <div class="card-actions">
+        <button class="flag-btn ${isFlagged ? 'active' : ''}" data-id="${id}" data-tip="${isFlagged ? 'Unflag' : 'Flag for follow-up'}">
+          <span class="material-symbols-outlined">flag</span>
         </button>
-        <button class="move-btn" ${idx===2?'disabled':''} data-act="fwd" data-id="${id}" data-tip="Move forward">
-          <span class="material-symbols-outlined">chevron_forward</span>
-        </button>
+        <div class="move-btns">
+          <button class="move-btn" ${idx===0?'disabled':''} data-act="back" data-id="${id}" data-tip="Move back (are you sure?)">
+            <span class="material-symbols-outlined">chevron_backward</span>
+          </button>
+          <button class="move-btn" ${idx===2?'disabled':''} data-act="fwd" data-id="${id}" data-tip="Move forward">
+            <span class="material-symbols-outlined">chevron_forward</span>
+          </button>
+        </div>
       </div>
     </div>
   </div>`;
@@ -330,7 +369,7 @@ function render(){
   renderNotesRibbon();
   renderHiddenPanel();
   const board = document.getElementById('board');
-  if(!statusReady || !hiddenReady || !itemsReady){ board.innerHTML = '<div class="loading">Loading the board…</div>'; return; }
+  if(!statusReady || !hiddenReady || !itemsReady || !flagsReady){ board.innerHTML = '<div class="loading">Loading the board…</div>'; return; }
 
   const filtered = ITEMS
     .filter(it => it.type !== 'EV')
@@ -378,6 +417,20 @@ function attachHandlers(){
       e.stopPropagation();
       setHidden(btn.dataset.id, true);
     });
+  });
+  document.querySelectorAll('.flag-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleFlag(btn.dataset.id);
+    });
+  });
+  document.querySelectorAll('.flag-note').forEach(input => {
+    const save = () => saveFlagNote(input.dataset.id, input.value);
+    input.addEventListener('blur', save);
+    input.addEventListener('keydown', (e) => {
+      if(e.key === 'Enter'){ save(); input.blur(); }
+    });
+    input.addEventListener('click', (e) => e.stopPropagation());
   });
   document.querySelectorAll('.card[draggable="true"]').forEach(card => {
     card.addEventListener('dragstart', e => {
