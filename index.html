@@ -17,30 +17,32 @@
     <div class="sub">Homework Board · Semester 2 2026</div>
   </div>
   <div class="controls">
-    <div class="bot-wrap">
-      <button class="bot-btn" id="botBtn" title="Hover for a word from the gremlin (he only speaks once per 10 min)">
-        <span class="material-symbols-outlined">robot</span>
-      </button>
-      <div class="bot-bubble" id="botBubble"></div>
+    <div class="controls-icons">
+      <div class="bot-wrap">
+        <button class="bot-btn" id="botBtn" title="Hover for a word from the gremlin (he only speaks once per 10 min)">
+          <span class="material-symbols-outlined">robot</span>
+        </button>
+        <div class="bot-bubble" id="botBubble"></div>
+      </div>
+      <div class="menu-wrap">
+        <button class="menu-btn" id="menuBtn" title="More options">
+          <span class="material-symbols-outlined">menu</span>
+        </button>
+        <div class="menu-dropdown" id="menuDropdown">
+          <button class="menu-item" id="hiddenBtn">Removed (0)</button>
+          <div class="menu-divider"></div>
+          <button class="menu-item" id="uploadBtn">Upload new calendar…</button>
+          <button class="menu-item" id="restoreBtn">Restore original calendar</button>
+          <div class="menu-divider"></div>
+          <button class="menu-item danger" id="resetBtn">Reset board</button>
+        </div>
+        <input type="file" id="uploadInput" accept="application/json" style="display:none">
+      </div>
     </div>
     <div id="kidFilter" style="display:flex;gap:6px;">
       <button class="btn active" data-kid="ALL">Everyone</button>
       <button class="btn" data-kid="Y7">Year 7</button>
       <button class="btn" data-kid="Y11">Year 11</button>
-    </div>
-    <div class="menu-wrap">
-      <button class="menu-btn" id="menuBtn" title="More options">
-        <span class="material-symbols-outlined">menu</span>
-      </button>
-      <div class="menu-dropdown" id="menuDropdown">
-        <button class="menu-item" id="hiddenBtn">Removed (0)</button>
-        <div class="menu-divider"></div>
-        <button class="menu-item" id="uploadBtn">Upload new calendar…</button>
-        <button class="menu-item" id="restoreBtn">Restore original calendar</button>
-        <div class="menu-divider"></div>
-        <button class="menu-item danger" id="resetBtn">Reset board</button>
-      </div>
-      <input type="file" id="uploadInput" accept="application/json" style="display:none">
     </div>
   </div>
 </header>

@@ -70,15 +70,15 @@
   }
   .bot-btn{
     width:40px;height:40px;
-    border-radius:50%;
-    border:1px solid var(--line);
-    background:var(--panel);
+    border-radius:8px;
+    border:none;
+    background:transparent;
     display:flex;align-items:center;justify-content:center;
     cursor:pointer;
     flex-shrink:0;
     transition:background .15s ease, transform .15s ease;
   }
-  .bot-btn:hover{background:var(--card-hover);}
+  .bot-btn:hover{background:rgba(255,255,255,0.07);}
   .bot-btn .material-symbols-outlined{
     font-size:22px;
     color:var(--marker);
@@ -127,7 +127,8 @@
     transform:translateY(0) scale(1);
   }
 
-  .controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .controls{display:flex;flex-direction:column;align-items:flex-end;gap:10px;}
+  .controls-icons{display:flex;align-items:center;gap:4px;}
   .btn{
     font-family:'Raleway',sans-serif;
     font-size:13px;
@@ -157,20 +158,20 @@
   .menu-wrap{position:relative;}
   .menu-btn{
     width:40px;height:40px;
-    border-radius:50%;
-    border:1px solid var(--line);
-    background:var(--panel);
+    border-radius:8px;
+    border:none;
+    background:transparent;
     display:flex;align-items:center;justify-content:center;
     cursor:pointer;
     transition:background .15s ease;
   }
-  .menu-btn:hover{background:var(--card-hover);}
+  .menu-btn:hover{background:rgba(255,255,255,0.07);}
   .menu-btn .material-symbols-outlined{
     font-size:22px;
     color:var(--text);
     font-variation-settings:'opsz' 24, 'wght' 400, 'FILL' 0, 'GRAD' 0;
   }
-  .menu-btn.open{background:var(--marker);border-color:var(--marker);}
+  .menu-btn.open{background:var(--marker);}
   .menu-btn.open .material-symbols-outlined{color:#1A1400;}
   .menu-dropdown{
     position:absolute;
