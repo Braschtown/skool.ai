@@ -21,6 +21,22 @@
   html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:'Raleway',sans-serif;}
   .num{font-variant-numeric:tabular-nums;}
 
+  .material-symbols-outlined{
+    font-family:'Material Symbols Outlined';
+    font-weight:normal;
+    font-style:normal;
+    line-height:1;
+    letter-spacing:normal;
+    text-transform:none;
+    display:inline-block;
+    white-space:nowrap;
+    word-wrap:normal;
+    direction:ltr;
+    -webkit-font-smoothing:antialiased;
+    font-feature-settings:'liga';
+    -webkit-font-feature-settings:'liga';
+  }
+
   header{
     padding:24px 24px 16px;
     border-bottom:1px solid var(--line);
