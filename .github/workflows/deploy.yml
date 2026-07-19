@@ -30,7 +30,7 @@ jobs:
             exit 1
           fi
           HASH=$(printf '%s' "$RESET_PIN" | sha256sum | cut -d' ' -f1)
-          sed -i "s/__PIN_HASH__/$HASH/g" index.html
+          sed -i "s/__PIN_HASH__/$HASH/g" app.js
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
