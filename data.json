@@ -4,440 +4,503 @@
     "day": "Fri",
     "kid": "Y7",
     "subject": "NAIDOC Event 12pm",
-    "type": "EV"
+    "type": "EV",
+    "subjectGroup": null
   },
   {
     "date": "2026-07-29",
     "day": "Wed",
     "kid": "Y7",
     "subject": "Geography - Folio 1",
-    "type": "FI"
+    "type": "FI",
+    "subjectGroup": "Geography"
   },
   {
     "date": "2026-08-04",
     "day": "Tue",
     "kid": "Y7",
     "subject": "Maths - Exam (60 min)",
-    "type": "EX"
+    "type": "EX",
+    "subjectGroup": "Maths"
   },
   {
     "date": "2026-08-07",
     "day": "Fri",
     "kid": "Y7",
     "subject": "Civics and Citizenship - Task 1",
-    "type": "DR"
+    "type": "DR",
+    "subjectGroup": "Civics and Citizenship"
   },
   {
     "date": "2026-08-11",
     "day": "Tue",
     "kid": "Y7",
     "subject": "Science - Physics Exam",
-    "type": "EX"
+    "type": "EX",
+    "subjectGroup": "Science"
   },
   {
     "date": "2026-08-12",
     "day": "Wed",
     "kid": "BOTH",
     "subject": "Brisbane Ekka Holiday",
-    "type": "EV"
+    "type": "EV",
+    "subjectGroup": null
   },
   {
     "date": "2026-08-13",
     "day": "Thu",
     "kid": "Y7",
     "subject": "Civics and Citizenship - Task 1 (FINAL)",
-    "type": "FI"
+    "type": "FI",
+    "subjectGroup": "Civics and Citizenship"
   },
   {
     "date": "2026-08-13",
     "day": "Thu",
     "kid": "Y7",
     "subject": "Geography - Folio 2",
-    "type": "FI"
+    "type": "FI",
+    "subjectGroup": "Geography"
   },
   {
     "date": "2026-08-20",
     "day": "Thu",
     "kid": "Y7",
     "subject": "English - Task 3 Narrative",
-    "type": "DR"
+    "type": "DR",
+    "subjectGroup": "English"
   },
   {
     "date": "2026-08-20",
     "day": "Thu",
     "kid": "Y7",
     "subject": "Design & Tech - Practical Task Review",
-    "type": "EV"
+    "type": "EV",
+    "subjectGroup": null
   },
   {
     "date": "2026-08-25",
     "day": "Tue",
     "kid": "Y7",
     "subject": "Music - Performance",
-    "type": "DR"
+    "type": "DR",
+    "subjectGroup": "Music"
   },
   {
     "date": "2026-08-27",
     "day": "Thu",
     "kid": "Y7",
     "subject": "Civics - POL Folio 1 (FINAL)",
-    "type": "FI"
+    "type": "FI",
+    "subjectGroup": "Civics and Citizenship"
   },
   {
     "date": "2026-08-27",
     "day": "Thu",
     "kid": "Y7",
     "subject": "Maths - Investigation (FINAL)",
-    "type": "FI"
+    "type": "FI",
+    "subjectGroup": "Maths"
   },
   {
     "date": "2026-09-01",
     "day": "Tue",
     "kid": "Y7",
     "subject": "Music - Artist Statement",
-    "type": "DR"
+    "type": "DR",
+    "subjectGroup": "Music"
   },
   {
     "date": "2026-09-01",
     "day": "Tue",
     "kid": "Y7",
     "subject": "Geography - Folio 3 (FINAL)",
-    "type": "FI"
+    "type": "FI",
+    "subjectGroup": "Geography"
   },
   {
     "date": "2026-09-04",
     "day": "Fri",
     "kid": "Y7",
     "subject": "English - Task 3 Narrative (FINAL)",
-    "type": "FI"
+    "type": "FI",
+    "subjectGroup": "English"
   },
   {
     "date": "2026-09-04",
     "day": "Fri",
     "kid": "Y7",
     "subject": "Student Free Day",
-    "type": "EV"
+    "type": "EV",
+    "subjectGroup": null
   },
   {
     "date": "2026-09-07",
     "day": "Mon",
     "kid": "Y7",
     "subject": "Music - Performance (FINAL)",
-    "type": "FI"
+    "type": "FI",
+    "subjectGroup": "Music"
   },
   {
     "date": "2026-09-07",
     "day": "Mon",
     "kid": "Y7",
     "subject": "Science - Student Experiment (DUE)",
-    "type": "FI"
+    "type": "FI",
+    "subjectGroup": "Science"
   },
   {
     "date": "2026-09-08",
     "day": "Tue",
     "kid": "Y7",
     "subject": "Music - Artist Statement (FINAL)",
-    "type": "FI"
+    "type": "FI",
+    "subjectGroup": "Music"
   },
   {
     "date": "2026-09-08",
     "day": "Tue",
     "kid": "Y7",
     "subject": "Civics - POL Folio 2 (FINAL)",
-    "type": "FI"
+    "type": "FI",
+    "subjectGroup": "Civics and Citizenship"
   },
   {
     "date": "2026-09-14",
     "day": "Mon",
     "kid": "Y7",
     "subject": "Dreamworld Trip (eligible Yr 7/8/9)",
-    "type": "EV"
+    "type": "EV",
+    "subjectGroup": null
   },
   {
     "date": "2026-10-05",
     "day": "Mon",
     "kid": "BOTH",
     "subject": "King's Birthday Holiday",
-    "type": "EV"
+    "type": "EV",
+    "subjectGroup": null
   },
   {
     "date": "2026-10-29",
     "day": "Thu",
     "kid": "Y7",
     "subject": "Science - Food Web Assessment (DUE)",
-    "type": "FI"
+    "type": "FI",
+    "subjectGroup": "Science"
   },
   {
     "date": "2026-10-29",
     "day": "Thu",
     "kid": "Y7",
     "subject": "Geography - Liveability Part A",
-    "type": "FI"
+    "type": "FI",
+    "subjectGroup": "Geography"
   },
   {
     "date": "2026-11-02",
     "day": "Mon",
     "kid": "Y7",
     "subject": "Geography - Liveability Part B",
-    "type": "FI"
+    "type": "FI",
+    "subjectGroup": "Geography"
   },
   {
     "date": "2026-11-09",
     "day": "Mon",
     "kid": "Y7",
     "subject": "Year 7 Immunisations",
-    "type": "EV"
+    "type": "EV",
+    "subjectGroup": null
   },
   {
     "date": "2026-11-11",
     "day": "Wed",
     "kid": "Y7",
     "subject": "English - Task 4 Podcast",
-    "type": "DR"
+    "type": "DR",
+    "subjectGroup": "English"
   },
   {
     "date": "2026-11-11",
     "day": "Wed",
     "kid": "Y7",
     "subject": "Design & Tech - Practical Task Review",
-    "type": "EV"
+    "type": "EV",
+    "subjectGroup": null
   },
   {
     "date": "2026-11-12",
     "day": "Thu",
     "kid": "Y7",
     "subject": "Geography - Liveability Part C",
-    "type": "FI"
+    "type": "FI",
+    "subjectGroup": "Geography"
   },
   {
     "date": "2026-11-17",
     "day": "Tue",
     "kid": "Y7",
     "subject": "Music - Performance",
-    "type": "DR"
+    "type": "DR",
+    "subjectGroup": "Music"
   },
   {
     "date": "2026-11-18",
     "day": "Wed",
     "kid": "Y7",
     "subject": "Maths - L1 Exam (60 min)",
-    "type": "EX"
+    "type": "EX",
+    "subjectGroup": "Maths"
   },
   {
     "date": "2026-11-19",
     "day": "Thu",
     "kid": "Y7",
     "subject": "Civics and Citizenship - Folio 1 (FINAL)",
-    "type": "FI"
+    "type": "FI",
+    "subjectGroup": "Civics and Citizenship"
   },
   {
     "date": "2026-11-19",
     "day": "Thu",
     "kid": "Y7",
     "subject": "Geography - Liveability Part D",
-    "type": "FI"
+    "type": "FI",
+    "subjectGroup": "Geography"
   },
   {
     "date": "2026-11-23",
     "day": "Mon",
     "kid": "Y7",
     "subject": "English - Task 4 Podcast (FINAL)",
-    "type": "FI"
+    "type": "FI",
+    "subjectGroup": "English"
   },
   {
     "date": "2026-11-24",
     "day": "Tue",
     "kid": "Y7",
     "subject": "Music - Artist Statement",
-    "type": "DR"
+    "type": "DR",
+    "subjectGroup": "Music"
   },
   {
     "date": "2026-11-25",
     "day": "Wed",
     "kid": "Y7",
     "subject": "Science - Dichotomous Key Assessment (DUE)",
-    "type": "FI"
+    "type": "FI",
+    "subjectGroup": "Science"
   },
   {
     "date": "2026-11-25",
     "day": "Wed",
     "kid": "Y7",
     "subject": "Geography - Liveability (FINAL)",
-    "type": "FI"
+    "type": "FI",
+    "subjectGroup": "Geography"
   },
   {
     "date": "2026-11-30",
     "day": "Mon",
     "kid": "Y7",
     "subject": "Music - Performance (FINAL)",
-    "type": "FI"
+    "type": "FI",
+    "subjectGroup": "Music"
   },
   {
     "date": "2026-12-01",
     "day": "Tue",
     "kid": "Y7",
     "subject": "Music - Artist Statement (FINAL)",
-    "type": "FI"
+    "type": "FI",
+    "subjectGroup": "Music"
   },
   {
     "date": "2026-12-01",
     "day": "Tue",
     "kid": "Y7",
     "subject": "Civics and Citizenship - Folio 2 (FINAL)",
-    "type": "FI"
+    "type": "FI",
+    "subjectGroup": "Civics and Citizenship"
   },
   {
     "date": "2026-12-07",
     "day": "Mon",
     "kid": "Y7",
     "subject": "Alternate Program week",
-    "type": "EV"
+    "type": "EV",
+    "subjectGroup": null
   },
   {
     "date": "2026-07-21",
     "day": "Tue",
     "kid": "Y11",
     "subject": "English FIA3 Imaginative Response Exam",
-    "type": "EX"
+    "type": "EX",
+    "subjectGroup": "English"
   },
   {
     "date": "2026-07-22",
     "day": "Wed",
     "kid": "Y11",
     "subject": "English FIA3 Imaginative Response Exam",
-    "type": "EX"
+    "type": "EX",
+    "subjectGroup": "English"
   },
   {
     "date": "2026-07-23",
     "day": "Thu",
     "kid": "Y11",
     "subject": "English FIA3 Imaginative Response Exam",
-    "type": "EX"
+    "type": "EX",
+    "subjectGroup": "English"
   },
   {
     "date": "2026-07-24",
     "day": "Fri",
     "kid": "Y11",
     "subject": "Biology FIA3",
-    "type": "DR"
+    "type": "DR",
+    "subjectGroup": "Biology"
   },
   {
     "date": "2026-07-30",
     "day": "Thu",
     "kid": "Y11",
     "subject": "Visual Art FIA3",
-    "type": "FI"
+    "type": "FI",
+    "subjectGroup": "Visual Art"
   },
   {
     "date": "2026-07-31",
     "day": "Fri",
     "kid": "Y11",
     "subject": "SCS FIA3 extended response",
-    "type": "FI"
+    "type": "FI",
+    "subjectGroup": "SCS"
   },
   {
     "date": "2026-08-13",
     "day": "Thu",
     "kid": "Y11",
     "subject": "Visual Art FIA3 (FINAL)",
-    "type": "FI"
+    "type": "FI",
+    "subjectGroup": "Visual Art"
   },
   {
     "date": "2026-08-14",
     "day": "Fri",
     "kid": "Y11",
     "subject": "Biology FIA3 (FINAL)",
-    "type": "FI"
+    "type": "FI",
+    "subjectGroup": "Biology"
   },
   {
     "date": "2026-08-21",
     "day": "Fri",
     "kid": "Y11",
     "subject": "MHS FIA3 research assignment",
-    "type": "FI"
+    "type": "FI",
+    "subjectGroup": "MHS"
   },
   {
     "date": "2026-09-03",
     "day": "Thu",
     "kid": "Y11",
     "subject": "Visual Art FIA4 Mock Exam",
-    "type": "EX"
+    "type": "EX",
+    "subjectGroup": "Visual Art"
   },
   {
     "date": "2026-09-14",
     "day": "Mon",
     "kid": "Y11",
     "subject": "English FIA4 exam",
-    "type": "EX"
+    "type": "EX",
+    "subjectGroup": "English"
   },
   {
     "date": "2026-09-16",
     "day": "Wed",
     "kid": "Y11",
     "subject": "MHS FIA4 mini task",
-    "type": "FI"
+    "type": "FI",
+    "subjectGroup": "MHS"
   },
   {
     "date": "2026-09-16",
     "day": "Wed",
     "kid": "Y11",
     "subject": "SCS FIA4 project",
-    "type": "FI"
+    "type": "FI",
+    "subjectGroup": "SCS"
   },
   {
     "date": "2026-09-17",
     "day": "Thu",
     "kid": "Y11",
     "subject": "Block exams: MAE/MAG/MAM/MAS/Visual Art/Philosophy/Music FIA4",
-    "type": "EX"
+    "type": "EX",
+    "subjectGroup": "General Maths"
   },
   {
     "date": "2026-09-18",
     "day": "Fri",
     "kid": "Y11",
     "subject": "Biology FIA4 exam",
-    "type": "EX"
+    "type": "EX",
+    "subjectGroup": "Biology"
   },
   {
     "date": "2026-11-11",
     "day": "Wed",
     "kid": "Y11",
     "subject": "Awards Night",
-    "type": "EV"
+    "type": "EV",
+    "subjectGroup": null
   },
   {
     "date": "2026-11-12",
     "day": "Thu",
     "kid": "Y11",
     "subject": "ENG IA1 Speech",
-    "type": "DR"
+    "type": "DR",
+    "subjectGroup": "English"
   },
   {
     "date": "2026-11-13",
     "day": "Fri",
     "kid": "Y11",
     "subject": "SCS IA1 (FINAL)",
-    "type": "FI"
+    "type": "FI",
+    "subjectGroup": "SCS"
   },
   {
     "date": "2026-11-13",
     "day": "Fri",
     "kid": "Y11",
     "subject": "Visual Art IA1",
-    "type": "DR"
+    "type": "DR",
+    "subjectGroup": "Visual Art"
   },
   {
     "date": "2026-11-23",
     "day": "Mon",
     "kid": "Y11",
     "subject": "Biology IA1 (FINAL)",
-    "type": "FI"
+    "type": "FI",
+    "subjectGroup": "Biology"
   },
   {
     "date": "2026-11-27",
     "day": "Fri",
     "kid": "Y11",
     "subject": "FINAL DAY: Psychology/Digital Solutions/French/Spanish/Chinese/ENG Speech/Cert II Cultural Arts/Visual Arts Painting/MAE-MAG Exam/MHS exam/Philosophy exam/Visual Art IA1 (FINAL)",
-    "type": "FI"
+    "type": "FI",
+    "subjectGroup": "General Maths"
   }
 ]

@@ -18,6 +18,7 @@ const hiddenRef = ref(db, 'homeworkBoard/hidden');
 const dataRef = ref(db, 'homeworkBoard/customData');
 const flagsRef = ref(db, 'homeworkBoard/flags');
 const dateOverridesRef = ref(db, 'homeworkBoard/dateOverrides');
+const subjectVisibilityRef = ref(db, 'homeworkBoard/subjectVisibility');
 
 // Replaced with a SHA-256 hash of the parent PIN at deploy time by the GitHub Actions workflow.
 // Never edit this by hand — set the real PIN via the RESET_PIN repository secret instead.
@@ -70,6 +71,7 @@ function applyData(customVal){
   ITEMS = (Array.isArray(customVal) && customVal.length > 0) ? customVal : bundledItems;
   itemsReady = true;
   render();
+  renderSubjectsPage();
 }
 
 loadBundledData().then(() => {
@@ -91,12 +93,14 @@ let status = {};   // sanitised-id -> 'inprogress'|'done'  (absent = todo)
 let hidden = {};   // sanitised-id -> true
 let flags = {};    // sanitised-id -> { note: string }
 let dateOverrides = {}; // sanitised-id -> "YYYY-MM-DD" — a corrected due date, keyed off the item's ORIGINAL date so it never loses its status/flag/hidden history when edited
+let subjectVisibility = {}; // "Y7|Subject Name" -> false when hidden. Absent (or true) means visible.
 let currentKidFilter = 'ALL';
 let searchTerm = '';
 let statusReady = false;
 let hiddenReady = false;
 let flagsReady = false;
 let dateOverridesReady = false;
+let subjectVisibilityReady = false;
 let hiddenPanelOpen = false;
 
 function itemId(it){ return it.date + '|' + it.kid + '|' + it.subject; }
@@ -106,6 +110,22 @@ function getStatus(it){ return status[dbKey(itemId(it))] || 'todo'; }
 function isHidden(it){ return !!hidden[dbKey(itemId(it))]; }
 function getFlag(it){ return flags[dbKey(itemId(it))] || null; }
 function effectiveDate(it){ return dateOverrides[dbKey(itemId(it))] || it.date; }
+
+// Prefer an explicit subjectGroup field (data.json can supply this). Falls back to a
+// best-guess from the task text for older datasets or uploads that don't include it,
+// so subject toggling still works reasonably even without the field.
+function subjectGroupOf(it){
+  if(it.subjectGroup) return it.subjectGroup;
+  const dashIdx = it.subject.indexOf(' - ');
+  if(dashIdx > -1) return it.subject.slice(0, dashIdx).trim();
+  return it.subject.replace(/\s+(FIA?\d+|FA\d+|IA\d+|Task \d+|\(FINAL\)).*$/i, '').trim() || it.subject;
+}
+function subjectVisKey(kid, group){ return dbKey(kid + '|' + group); }
+function isSubjectVisible(it){
+  if(it.type === 'EV') return true; // school-wide notes aren't subject-specific
+  const key = subjectVisKey(it.kid, subjectGroupOf(it));
+  return subjectVisibility[key] !== false; // absent or true = visible; only explicit false hides it
+}
 function escapeAttr(str){
   return String(str).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
@@ -136,6 +156,13 @@ onValue(dateOverridesRef, (snapshot) => {
   dateOverrides = snapshot.val() || {};
   dateOverridesReady = true;
   render();
+}, () => showConnError());
+
+onValue(subjectVisibilityRef, (snapshot) => {
+  subjectVisibility = snapshot.val() || {};
+  subjectVisibilityReady = true;
+  render();
+  renderSubjectsPage();
 }, () => showConnError());
 
 let recentCompletionAt = 0;
@@ -206,7 +233,7 @@ function botCategory(){
   const hour = new Date().getHours();
   if((hour >= 22 || hour < 5) && Math.random() < 0.4) return 'LATENIGHT';
 
-  const active = ITEMS.filter(it => it.type !== 'EV' && !isHidden(it) && getStatus(it) !== 'done');
+  const active = ITEMS.filter(it => it.type !== 'EV' && !isHidden(it) && isSubjectVisible(it) && getStatus(it) !== 'done');
   if(active.length === 0) return 'CALM';
   const dus = active.map(it => daysUntil(effectiveDate(it)));
   const minDu = Math.min(...dus);
@@ -389,12 +416,13 @@ function render(){
   renderNotesRibbon();
   renderHiddenPanel();
   const board = document.getElementById('board');
-  if(!statusReady || !hiddenReady || !itemsReady || !flagsReady || !dateOverridesReady){ board.innerHTML = '<div class="loading">Loading the board…</div>'; return; }
+  if(!statusReady || !hiddenReady || !itemsReady || !flagsReady || !dateOverridesReady || !subjectVisibilityReady){ board.innerHTML = '<div class="loading">Loading the board…</div>'; return; }
 
   const filtered = ITEMS
     .filter(it => it.type !== 'EV')
     .filter(it => currentKidFilter === 'ALL' || it.kid === currentKidFilter)
     .filter(it => !isHidden(it))
+    .filter(it => isSubjectVisible(it))
     .filter(it => !searchTerm || it.subject.toLowerCase().includes(searchTerm));
 
   const buckets = {todo:[], inprogress:[], done:[]};
@@ -617,4 +645,75 @@ document.getElementById('restoreBtn').addEventListener('click', async () => {
     set(dataRef, null).catch(showConnError);
   }
 });
+
+/* ===== Info modal ===== */
+const infoBackdrop = document.getElementById('infoBackdrop');
+document.getElementById('infoBtn').addEventListener('click', () => infoBackdrop.classList.add('open'));
+document.getElementById('infoCloseBtn').addEventListener('click', () => infoBackdrop.classList.remove('open'));
+infoBackdrop.addEventListener('click', (e) => {
+  if(e.target === infoBackdrop) infoBackdrop.classList.remove('open');
+});
+
+/* ===== Subjects page ===== */
+const subjectsPage = document.getElementById('subjectsPage');
+
+function getAllSubjectGroups(){
+  const map = { Y7: new Set(), Y11: new Set() };
+  ITEMS.forEach(it => {
+    if(it.type === 'EV') return;
+    if(!map[it.kid]) map[it.kid] = new Set();
+    map[it.kid].add(subjectGroupOf(it));
+  });
+  return map;
+}
+
+function renderSubjectsPage(){
+  if(!itemsReady) return;
+  const container = document.getElementById('subjectsList');
+  const groups = getAllSubjectGroups();
+  const kidLabels = { Y7: 'Year 7', Y11: 'Year 11' };
+  const kids = Object.keys(groups).filter(k => groups[k].size > 0);
+
+  if(kids.length === 0){
+    container.innerHTML = '<p style="color:var(--text-faint);font-size:13px;">No subjects found in the current calendar yet.</p>';
+    return;
+  }
+
+  container.innerHTML = kids.map(kid => {
+    const subs = Array.from(groups[kid]).sort();
+    return `<div class="subj-kid-group">
+      <h3 class="subj-kid-title">${kidLabels[kid] || kid}</h3>
+      ${subs.map(g => {
+        const key = subjectVisKey(kid, g);
+        const isOn = subjectVisibility[key] !== false;
+        return `<label class="subj-toggle-row">
+          <span>${g}</span>
+          <span class="switch ${isOn ? 'on' : ''}" data-key="${key}"></span>
+        </label>`;
+      }).join('')}
+    </div>`;
+  }).join('');
+}
+
+document.getElementById('subjectsList').addEventListener('click', (e) => {
+  const sw = e.target.closest('.switch');
+  if(!sw) return;
+  const key = sw.dataset.key;
+  const isCurrentlyOn = subjectVisibility[key] !== false;
+  if(isCurrentlyOn) subjectVisibility[key] = false;
+  else delete subjectVisibility[key];
+  set(subjectVisibilityRef, subjectVisibility).catch(showConnError);
+  renderSubjectsPage();
+  render();
+});
+
+document.getElementById('subjectsPageBtn').addEventListener('click', () => {
+  closeMenu();
+  renderSubjectsPage();
+  subjectsPage.classList.add('open');
+});
+document.getElementById('subjectsBackBtn').addEventListener('click', () => {
+  subjectsPage.classList.remove('open');
+});
+
 

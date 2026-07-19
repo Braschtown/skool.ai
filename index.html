@@ -23,12 +23,16 @@
         </button>
         <div class="bot-bubble" id="botBubble"></div>
       </div>
+      <button class="info-btn" id="infoBtn" title="How this board works">
+        <span class="material-symbols-outlined">info</span>
+      </button>
       <div class="menu-wrap">
         <button class="menu-btn" id="menuBtn" title="More options">
           <span class="material-symbols-outlined">menu</span>
         </button>
         <div class="menu-dropdown" id="menuDropdown">
           <button class="menu-item" id="hiddenBtn">Removed (0)</button>
+          <button class="menu-item" id="subjectsPageBtn">Manage subjects</button>
           <div class="menu-divider"></div>
           <button class="menu-item" id="uploadBtn">Upload new calendar…</button>
           <button class="menu-item" id="restoreBtn">Restore original calendar</button>
@@ -68,16 +72,33 @@
   <div class="loading">Loading the board…</div>
 </div>
 
-<footer>
-  <div class="legend">
-    <div class="legend-item"><span class="legend-dot" style="background:var(--marker)"></span>Draft due</div>
-    <div class="legend-item"><span class="legend-dot" style="background:var(--coral)"></span>Final due</div>
-    <div class="legend-item"><span class="legend-dot" style="background:var(--plum)"></span>Exam</div>
-    <div class="legend-item"><span class="legend-dot" style="background:var(--overdue)"></span>Overdue badge</div>
-    <div class="legend-item"><span class="material-symbols-outlined" style="font-size:14px;color:var(--overdue)">flag</span>Flagged for follow-up</div>
+<div class="modal-backdrop" id="infoBackdrop">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h2>How this board works</h2>
+      <button class="modal-close" id="infoCloseBtn"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div class="legend">
+      <div class="legend-item"><span class="legend-dot" style="background:var(--marker)"></span>Draft due</div>
+      <div class="legend-item"><span class="legend-dot" style="background:var(--coral)"></span>Final due</div>
+      <div class="legend-item"><span class="legend-dot" style="background:var(--plum)"></span>Exam</div>
+      <div class="legend-item"><span class="legend-dot" style="background:var(--overdue)"></span>Overdue badge</div>
+      <div class="legend-item"><span class="material-symbols-outlined" style="font-size:14px;color:var(--overdue)">flag</span>Flagged for follow-up</div>
+    </div>
+    <p>Draft due dates matter — teachers give feedback that improves the final grade. Final due dates are firm; extensions must be requested from the school before the due date. Card positions sync live for the whole family. Removed a subject you don't take? Use the × on the card — it hides it for everyone, and you can bring it back any time from "Removed" in the menu. Tap the flag on a card to mark it for follow-up, with an optional note, visible to everyone on the board. If a due date changes, tap it to correct it (parent PIN required) — a small pencil shows on any date that's been adjusted from the original.</p>
   </div>
-  <p>Draft due dates matter — teachers give feedback that improves the final grade. Final due dates are firm; extensions must be requested from the school before the due date. Card positions sync live for the whole family. Removed a subject you don't take? Use the × on the card — it hides it for everyone, and you can bring it back any time from "Removed" above. Tap the flag on a card to mark it for follow-up, with an optional note, visible to everyone on the board. If a due date changes, tap it to correct it (parent PIN required) — a small pencil shows on any date that's been adjusted from the original.</p>
-</footer>
+</div>
+
+<div class="subjects-page" id="subjectsPage">
+  <div class="subjects-page-head">
+    <button class="back-btn" id="subjectsBackBtn">
+      <span class="material-symbols-outlined">chevron_backward</span> Back to board
+    </button>
+    <h2>Manage subjects</h2>
+    <p class="subjects-sub">Turn off subjects a student doesn't take — the board (and any calendar uploaded for a new year) will only show what's switched on.</p>
+  </div>
+  <div class="subjects-list" id="subjectsList"></div>
+</div>
 
 <script type="module" src="app.js"></script>
 </body>

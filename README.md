@@ -84,6 +84,12 @@ To go back to the bundled `data.json`, use **Restore original calendar** from th
 
 **Where does a new file come from?** Send the new school PDF calendar to Claude and ask for a `data.json` in this app's format — it'll hold the same date-parsing care as the original (weekday cross-checked against the actual calendar date, holidays that apply to both kids merged into one entry instead of listed twice).
 
+**About `subjectGroup`:** each non-holiday item can optionally include a `subjectGroup` field — a short, clean subject name (e.g. `"Music"`, `"Biology"`) separate from the longer task description in `subject` (e.g. `"Music FIA3 Project"`). This is what powers **Manage subjects** (see below). If it's missing, the app makes a reasonable guess from the task text, but including it explicitly gives more reliable grouping, especially for a fresh year's calendar. Ask Claude to include it when generating a new `data.json`.
+
+## Managing which subjects show up
+
+From the **≡ menu → Manage subjects**, each student's subjects list with an on/off switch. Turning a subject off hides every card for that subject, for everyone, until switched back on, useful when a new year's calendar includes electives one of the boys doesn't actually take. New subjects (e.g. after uploading a fresh year's calendar) default to **on** until someone turns them off.
+
 ## Changing the PIN later
 
 Update the `RESET_PIN` secret, then re-run the workflow from the **Actions** tab (or push any small change to `main`).
