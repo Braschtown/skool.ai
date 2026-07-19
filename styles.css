@@ -53,8 +53,6 @@
     width:100%;
   }
   .htitle-text{display:flex;align-items:center;gap:11px;}
-  .htitle-wrap .dot{width:10px;height:10px;border-radius:50%;background:var(--marker);box-shadow:0 0 12px var(--marker);flex-shrink:0;}
-  .htitle-wrap .dot.live{background:var(--leaf);box-shadow:0 0 12px var(--leaf);}
   h1{
     font-family:'Orbitron',sans-serif;
     font-weight:800;
@@ -100,9 +98,9 @@
   .bot-bubble{
     position:absolute;
     top:48px;
-    left:0;
+    right:0;
     min-width:220px;
-    max-width:280px;
+    max-width:min(280px, calc(100vw - 40px));
     background:var(--card);
     border:1px solid var(--line);
     border-radius:12px;
@@ -121,7 +119,7 @@
   .bot-bubble::before{
     content:"";
     position:absolute;
-    top:-6px; left:16px;
+    top:-6px; right:16px;
     width:12px;height:12px;
     background:var(--card);
     border-left:1px solid var(--line);
@@ -135,11 +133,36 @@
 
   .filter-row{display:flex;gap:6px;flex-wrap:wrap;}
   .controls-icons{display:flex;align-items:center;gap:4px;flex-shrink:0;margin-left:auto;}
+  .search-wrap{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:8px 12px;
+    max-width:320px;
+  }
+  .search-wrap:focus-within{border-color:var(--marker);}
+  .search-icon{font-size:18px;color:var(--text-faint);flex-shrink:0;}
+  .search-box{
+    flex:1;
+    min-width:0;
+    background:none;
+    border:none;
+    outline:none;
+    color:var(--text);
+    font-family:'Raleway',sans-serif;
+    font-size:13px;
+    font-weight:500;
+  }
+  .search-box::placeholder{color:var(--text-faint);}
+  .search-box::-webkit-search-cancel-button{cursor:pointer;}
   .btn{
     font-family:'Raleway',sans-serif;
     font-size:13px;
     font-weight:700;
-    padding:7px 14px;
+    padding:5px 10px;
     border-radius:6px;
     border:1px solid var(--line);
     background:var(--panel);
@@ -321,7 +344,6 @@
     padding:2px 9px;
     border-radius:10px;
   }
-  .col-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
   .col-body{
     padding:14px;
     overflow-y:auto;
@@ -329,6 +351,7 @@
     flex-direction:column;
     gap:12px;
     flex:1;
+    touch-action:pan-y;
   }
   .col-body::-webkit-scrollbar{width:5px;}
   .col-body::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px;}
@@ -342,6 +365,7 @@
     cursor:grab;
     transition:background .12s ease;
     position:relative;
+    touch-action:pan-y;
   }
   .card:hover{background:var(--card-hover);}
   .card:active{cursor:grabbing;}

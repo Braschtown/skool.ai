@@ -80,14 +80,15 @@ loadBundledData().then(() => {
 const TYPE_LABEL = { DR:'Draft due', FI:'Final due', EX:'Exam', EV:'Note' };
 const STATUSES = ['todo','inprogress','done'];
 const COLUMNS = [
-  {key:'todo', name:'To Do', dot:'var(--y7)'},
-  {key:'inprogress', name:'In Progress', dot:'var(--amber)'},
-  {key:'done', name:'Done', dot:'var(--leaf)'},
+  {key:'todo', name:'To Do'},
+  {key:'inprogress', name:'In Progress'},
+  {key:'done', name:'Done'},
 ];
 
 let status = {};   // sanitised-id -> 'inprogress'|'done'  (absent = todo)
 let hidden = {};   // sanitised-id -> true
 let currentKidFilter = 'ALL';
+let searchTerm = '';
 let statusReady = false;
 let hiddenReady = false;
 let hiddenPanelOpen = false;
@@ -104,7 +105,6 @@ function hideConnError(){ document.getElementById('connError').style.display = '
 onValue(statusRef, (snapshot) => {
   status = snapshot.val() || {};
   statusReady = true;
-  document.getElementById('liveDot').classList.add('live');
   hideConnError();
   render();
 }, () => showConnError());
@@ -335,7 +335,8 @@ function render(){
   const filtered = ITEMS
     .filter(it => it.type !== 'EV')
     .filter(it => currentKidFilter === 'ALL' || it.kid === currentKidFilter)
-    .filter(it => !isHidden(it));
+    .filter(it => !isHidden(it))
+    .filter(it => !searchTerm || it.subject.toLowerCase().includes(searchTerm));
 
   const buckets = {todo:[], inprogress:[], done:[]};
   filtered.forEach(it => buckets[getStatus(it)].push(it));
@@ -352,7 +353,7 @@ function render(){
       : `<div class="col-empty">${col.key === 'done' ? 'Nothing finished yet' : 'Nothing here'}</div>`;
     return `<div class="column" data-col="${col.key}">
       <div class="col-head">
-        <span class="name"><span class="col-dot" style="background:${col.dot}"></span>${col.name}</span>
+        <span class="name">${col.name}</span>
         <span class="count num">${items.length}</span>
       </div>
       <div class="col-body" data-col="${col.key}">${body}</div>
@@ -407,6 +408,11 @@ document.getElementById('kidFilter').addEventListener('click', (e) => {
   if(!btn) return;
   currentKidFilter = btn.dataset.kid;
   document.querySelectorAll('#kidFilter .btn').forEach(b => b.classList.toggle('active', b === btn));
+  render();
+});
+
+document.getElementById('searchInput').addEventListener('input', (e) => {
+  searchTerm = e.target.value.trim().toLowerCase();
   render();
 });
 
