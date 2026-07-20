@@ -51,11 +51,24 @@ function hideAuthGate(){
 onAuthStateChanged(auth, (user) => {
   if(user && ALLOWED_EMAILS.includes(user.email)){
     hideAuthGate();
+    startDataListeners();
   }else if(user){
     showAuthGate('not-allowed', user.email);
     signOut(auth);
   }else{
     showAuthGate('signed-out');
+    // Signing out cancels the active listeners (same permission re-check as on
+    // first load). Reset everything so a sign-back-in in the same tab starts
+    // fresh listeners and shows "Loading…" rather than getting stuck.
+    if(listenersStarted){
+      listenersStarted = false;
+      statusReady = false;
+      hiddenReady = false;
+      flagsReady = false;
+      dateOverridesReady = false;
+      subjectVisibilityReady = false;
+      itemsReady = false;
+    }
   }
 });
 
@@ -135,11 +148,7 @@ function applyData(customVal){
   renderSubjectsPage();
 }
 
-loadBundledData().then(() => {
-  onValue(dataRef, (snapshot) => {
-    applyData(snapshot.val());
-  }, () => { ITEMS = bundledItems; itemsReady = true; render(); });
-});
+
 
 
 const TYPE_LABEL = { DR:'Draft due', FI:'Final due', EX:'Exam', EV:'Note' };
@@ -195,42 +204,58 @@ function escapeAttr(str){
 function showConnError(){ document.getElementById('connError').style.display = 'block'; }
 function hideConnError(){ document.getElementById('connError').style.display = 'none'; }
 
-onValue(statusRef, (snapshot) => {
-  status = snapshot.val() || {};
-  statusReady = true;
-  hideConnError();
-  render();
-}, () => showConnError());
+// Every onValue below requires a valid, allowed sign-in per the database rules.
+// Starting these before auth is confirmed causes a permission-denied error that
+// permanently cancels the listener — Firebase does NOT auto-retry it later, even
+// once sign-in succeeds. So this is only ever called from inside onAuthStateChanged.
+let listenersStarted = false;
+function startDataListeners(){
+  if(listenersStarted) return;
+  listenersStarted = true;
 
-onValue(hiddenRef, (snapshot) => {
-  hidden = snapshot.val() || {};
-  hiddenReady = true;
-  render();
-}, () => showConnError());
+  loadBundledData().then(() => {
+    onValue(dataRef, (snapshot) => {
+      applyData(snapshot.val());
+    }, () => { ITEMS = bundledItems; itemsReady = true; render(); });
+  });
 
-onValue(flagsRef, (snapshot) => {
-  flags = snapshot.val() || {};
-  flagsReady = true;
-  render();
-}, () => showConnError());
+  onValue(statusRef, (snapshot) => {
+    status = snapshot.val() || {};
+    statusReady = true;
+    hideConnError();
+    render();
+  }, () => showConnError());
 
-onValue(dateOverridesRef, (snapshot) => {
-  dateOverrides = snapshot.val() || {};
-  dateOverridesReady = true;
-  render();
-}, () => showConnError());
+  onValue(hiddenRef, (snapshot) => {
+    hidden = snapshot.val() || {};
+    hiddenReady = true;
+    render();
+  }, () => showConnError());
 
-onValue(subjectVisibilityRef, (snapshot) => {
-  subjectVisibility = snapshot.val() || {};
-  subjectVisibilityReady = true;
-  render();
-  renderSubjectsPage();
-}, () => showConnError());
+  onValue(flagsRef, (snapshot) => {
+    flags = snapshot.val() || {};
+    flagsReady = true;
+    render();
+  }, () => showConnError());
 
-onValue(feedbackRef, (snapshot) => {
-  feedback = snapshot.val() || {};
-  renderFeedbackPage();
-}, () => showConnError());
+  onValue(dateOverridesRef, (snapshot) => {
+    dateOverrides = snapshot.val() || {};
+    dateOverridesReady = true;
+    render();
+  }, () => showConnError());
+
+  onValue(subjectVisibilityRef, (snapshot) => {
+    subjectVisibility = snapshot.val() || {};
+    subjectVisibilityReady = true;
+    render();
+    renderSubjectsPage();
+  }, () => showConnError());
+
+  onValue(feedbackRef, (snapshot) => {
+    feedback = snapshot.val() || {};
+    renderFeedbackPage();
+  }, () => showConnError());
+}
 
 let recentCompletionAt = 0;
 
