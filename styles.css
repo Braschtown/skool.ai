@@ -319,7 +319,7 @@
     font-family:'Raleway',sans-serif;
     font-size:13px;
     font-weight:500;
-    color:var(--text);
+    color:var(--text-dim);
     background:none;
     border:none;
     border-radius:7px;
@@ -656,7 +656,7 @@
     line-height:1.6;
     margin-bottom:10px;
   }
-  .info-list li::marker{color:var(--marker);}
+  .info-list li::marker{color:var(--text-dim);}
   .info-list li:last-child{margin-bottom:0;}
 
   .subjects-page{
