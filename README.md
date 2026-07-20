@@ -16,7 +16,13 @@ The app is now split into separate files instead of one big HTML file:
 
 ## Setup (one-time)
 
-### 1. Lock down the database rules
+### 1. Turn on Google Sign-In
+
+**Authentication → Sign-in method → Add new provider → Google → Enable → Save.**
+
+Then, still in the Authentication section: **Settings tab → Authorized domains → Add domain**, and add your GitHub Pages domain (`<your-username>.github.io`). Without this step, sign-in will fail with an "unauthorized domain" error, Firebase only allows sign-in popups from domains you've explicitly approved.
+
+### 2. Lock down the database rules
 
 In the Firebase console: **Realtime Database → Rules**, replace the contents with:
 
@@ -24,12 +30,11 @@ In the Firebase console: **Realtime Database → Rules**, replace the contents w
 {
   "rules": {
     "homeworkBoard": {
-      ".read": true,
-      ".write": true,
+      ".read": "auth != null && (auth.token.email == 'chris.brasch@gmail.com' || auth.token.email == 'maria.brasch09@gmail.com' || auth.token.email == 'carlislerubio07@gmail.com' || auth.token.email == 'oliverbrasch@gmail.com')",
+      ".write": "auth != null && (auth.token.email == 'chris.brasch@gmail.com' || auth.token.email == 'maria.brasch09@gmail.com' || auth.token.email == 'carlislerubio07@gmail.com' || auth.token.email == 'oliverbrasch@gmail.com')",
       "feedback": {
         "$entryId": {
-          ".write": "!data.exists()",
-          ".validate": "newData.hasChildren(['from','category','message','timestamp'])",
+          ".validate": "!data.exists() && newData.hasChildren(['from','category','message','timestamp'])",
           "from": { ".validate": "newData.isString() && newData.val().length <= 40" },
           "category": { ".validate": "newData.isString() && newData.val().length <= 40" },
           "message": { ".validate": "newData.isString() && newData.val().length <= 600" },
@@ -46,11 +51,15 @@ In the Firebase console: **Realtime Database → Rules**, replace the contents w
 }
 ```
 
-Click **Publish**. This scopes access to only the `homeworkBoard` path and blocks everything else. There's no login on this app, so anyone with the page URL can still edit cards — reasonable for a family tool, just worth knowing.
+Click **Publish**. This is a real change from before: previously anyone with the page URL could read and write the board; now the database itself rejects any request that isn't signed in as one of these four specific email addresses, checked server-side by Firebase, not just gated by the app's UI. This is what actually secures the data, not just the page.
 
-The extra `feedback` block does two specific things: it stops anyone from overwriting or deleting an *existing* entry (each one can only be created once, never edited afterwards), and it rejects anything that doesn't match the expected shape, no giant messages, no extra junk fields, no wrong data types. It's a genuine guard against malformed or oversized submissions. It does **not** stop someone from submitting many small valid entries quickly, that's a different problem (see "About spam protection" below).
+The `feedback` block still does its job underneath that: it stops anyone (even an allowed family member, by mistake or otherwise) from editing or deleting an existing feedback entry, and rejects malformed submissions.
 
-### 2. Add the repository secret (the parent PIN)
+**Bonus**: this also fully closes the feedback-spam concern from before. With writes restricted to four specific signed-in accounts, there's no path left for an anonymous bot to write anything at all, the client-side throttle and validation rules are now backup layers rather than the main defence.
+
+To add a fifth person later, or change an email, edit this rules block (adding another `|| auth.token.email == '...'` clause) and re-publish, no code changes needed.
+
+### 3. Add the repository secret (the parent PIN)
 
 Gates "Reset board", "Upload new calendar", "Restore original calendar", and "View feedback" to just the two of you.
 
@@ -60,7 +69,7 @@ Gates "Reset board", "Upload new calendar", "Restore original calendar", and "Vi
 
 The PIN itself never appears in the repo or the live site, only its SHA-256 hash gets baked into `app.js` at deploy time.
 
-### 3. Add the files to your repo
+### 4. Add the files to your repo
 
 Upload all of these, keeping the structure:
 - `index.html` → repo root
@@ -70,17 +79,23 @@ Upload all of these, keeping the structure:
 - `README.md` → repo root
 - `deploy.yml` → **must go inside `.github/workflows/`** (type the full path `.github/workflows/deploy.yml` in GitHub's "Add file" box so it creates the folders)
 
-### 4. Switch Pages to deploy via GitHub Actions
+### 5. Switch Pages to deploy via GitHub Actions
 
 **Settings → Pages → Build and deployment → Source → GitHub Actions.**
 
-### 5. Trigger the first deploy
+### 6. Trigger the first deploy
 
 Any push to `main` runs the workflow. Check the **Actions** tab to watch it (about a minute), then the site's live at:
 
 ```
 https://<your-username>.github.io/<repo-name>/
 ```
+
+## Signing in
+
+First visit, everyone sees a sign-in screen, "Sign in with Google". Only the four emails in the database rules can get past it, anyone else's Google account gets a clear "you're not on the family list" message and is signed straight back out.
+
+Once signed in, it stays signed in on that device/browser (standard Google session persistence), no need to sign in again each visit. **Menu → Sign out** if someone wants to switch accounts or sign out of a shared device.
 
 ## Uploading a new calendar (e.g. next year)
 
@@ -105,17 +120,18 @@ From the **≡ menu → Manage subjects**, each student's subjects list with an 
 
 ## Feedback
 
-The thumbs-up-down button (bottom-right, always visible) lets anyone send feedback, no PIN needed to submit. It asks who it's from, what kind of thing it is (idea/bug/something's wrong), and a message, then saves straight into Firebase.
+The thumbs-up-down button (bottom-right, always visible) lets anyone signed in send feedback, no PIN needed to submit, just a valid family sign-in (which everyone using the board already has by this point). It asks who it's from, what kind of thing it is (idea/bug/something's wrong), and a message, then saves straight into Firebase.
 
 **Menu → View feedback** (PIN-gated) shows the full history, newest first. Since there's no automatic notification (no email, no push), checking that menu occasionally is the only way you'll see new feedback, worth building into a habit, or ask Claude about the notification options discussed earlier if that turns out to be a problem in practice.
 
 ### About spam protection
 
-Because feedback can be submitted by anyone with the page URL, no login required, there's a real (if low-probability, for a small family app) risk of it being spammed. Three layers are in place, roughly weakest to strongest:
+Now that the whole board sits behind Google Sign-In restricted to your four family emails (see step 1-2 above), this is largely a solved problem, no anonymous account can write anything at all, feedback included. Two lighter layers still sit underneath as backup, mostly to catch accidental issues rather than real attacks:
 
-1. **Client-side throttle** — one submission per 30 seconds per browser. Trivial for anyone determined to bypass (clearing browser storage, or just hitting Firebase directly), but stops accidental double-sends and casual spam.
-2. **Database rules validation** (the `feedback` block in step 1 above) — rejects malformed or oversized entries, and stops any entry from being edited after creation. Real protection against garbage data, not against submission *volume*.
-3. **Nothing yet stops a determined attacker from writing many valid, small entries quickly.** If that ever becomes an actual problem (not a hypothetical one), the proper fix is **Firebase App Check** with reCAPTCHA — a free Google service built exactly for this, blocking non-browser/bot traffic at the database level before it even reaches your rules. It needs a one-time reCAPTCHA site key, a small script added to `index.html`, and enforcement turned on in the Firebase console. It's a genuine step up in setup complexity from everything else in this app, so it's not included by default, ask if you want it added.
+1. **Client-side throttle** — one submission per 30 seconds per browser.
+2. **Database rules validation** (the `feedback` block in step 2 above) — rejects malformed or oversized entries, and stops any entry from being edited after creation.
+
+If one of the four accounts were ever compromised, that's a different (and much smaller) problem than open public access, and standard Google account security (2FA, etc.) is the relevant defence there, not something this app needs to handle itself.
 
 ## Changing the PIN later
 

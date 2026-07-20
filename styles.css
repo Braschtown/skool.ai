@@ -19,6 +19,61 @@
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:'Raleway',sans-serif;}
+  body.auth-locked{overflow:hidden;}
+
+  .auth-gate{
+    position:fixed;
+    inset:0;
+    background:var(--bg);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    z-index:200;
+  }
+  .auth-gate.open{display:flex;}
+  .auth-card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:36px 32px;
+    max-width:360px;
+    width:100%;
+    text-align:center;
+  }
+  .auth-logo{
+    font-family:'Orbitron',sans-serif;
+    font-weight:800;
+    font-size:26px;
+    letter-spacing:1px;
+    margin-bottom:16px;
+    background:linear-gradient(120deg,#F5C242,#FF6B4A 60%,#B784D6);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+  .auth-sub{font-size:13px;color:var(--text-dim);line-height:1.6;margin:0 0 22px;}
+  .auth-sub.error{color:var(--overdue);}
+  .google-signin-btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    width:100%;
+    padding:12px 16px;
+    border-radius:10px;
+    border:1px solid var(--line);
+    background:#fff;
+    color:#1F1F1F;
+    font-family:'Raleway',sans-serif;
+    font-size:14px;
+    font-weight:700;
+    cursor:pointer;
+    transition:transform .1s ease, box-shadow .15s ease;
+  }
+  .google-signin-btn:hover{box-shadow:0 4px 14px rgba(0,0,0,0.3);transform:scale(1.01);}
+  .google-signin-btn:disabled{opacity:0.6;cursor:default;transform:none;}
+
   .num{font-variant-numeric:tabular-nums;}
 
   .material-symbols-outlined{
@@ -56,7 +111,19 @@
     flex-wrap:wrap;
     width:100%;
   }
-  .htitle-text{display:flex;align-items:center;gap:11px;}
+  .htitle-text{
+    display:flex;
+    align-items:center;
+    gap:11px;
+    background:none;
+    border:none;
+    padding:0;
+    cursor:pointer;
+    opacity:1;
+    transition:opacity .15s ease;
+  }
+  .htitle-text:hover{opacity:0.8;}
+  .htitle-text:active{opacity:0.6;}
   h1{
     font-family:'Orbitron',sans-serif;
     font-weight:800;

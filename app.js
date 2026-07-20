@@ -1,5 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getDatabase, ref, onValue, set, push } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAKVctCVWs6-BIb0E9UTHZhwGM59wwKR8Q",
@@ -13,6 +14,65 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
+const auth = getAuth(app);
+
+// The real enforcement lives in the Firebase Database rules (server-side).
+// This client-side list just lets the app show a clear "not authorised" message
+// instead of a confusing silent permission error.
+const ALLOWED_EMAILS = [
+  'chris.brasch@gmail.com',
+  'maria.brasch09@gmail.com',
+  'carlislerubio07@gmail.com',
+  'oliverbrasch@gmail.com',
+];
+
+/* ===== Sign-in gate ===== */
+const authGate = document.getElementById('authGate');
+const authMessage = document.getElementById('authMessage');
+const googleSignInBtn = document.getElementById('googleSignInBtn');
+
+function showAuthGate(state, email){
+  authGate.classList.add('open');
+  document.body.classList.add('auth-locked');
+  if(state === 'not-allowed'){
+    authMessage.textContent = `${email} isn't on the family list for this board. Signed out — try a different Google account, or check with Chris or Maria.`;
+    authMessage.classList.add('error');
+  }else{
+    authMessage.textContent = 'Sign in with a family Google account to view the homework board.';
+    authMessage.classList.remove('error');
+  }
+}
+
+function hideAuthGate(){
+  authGate.classList.remove('open');
+  document.body.classList.remove('auth-locked');
+}
+
+onAuthStateChanged(auth, (user) => {
+  if(user && ALLOWED_EMAILS.includes(user.email)){
+    hideAuthGate();
+  }else if(user){
+    showAuthGate('not-allowed', user.email);
+    signOut(auth);
+  }else{
+    showAuthGate('signed-out');
+  }
+});
+
+googleSignInBtn.addEventListener('click', () => {
+  googleSignInBtn.disabled = true;
+  const provider = new GoogleAuthProvider();
+  signInWithPopup(auth, provider).catch((err) => {
+    console.error(err);
+    if(err.code !== 'auth/popup-closed-by-user'){
+      authMessage.textContent = "Couldn't sign in — please try again.";
+      authMessage.classList.add('error');
+    }
+  }).finally(() => {
+    googleSignInBtn.disabled = false;
+  });
+});
+
 const statusRef = ref(db, 'homeworkBoard/status');
 const hiddenRef = ref(db, 'homeworkBoard/hidden');
 const dataRef = ref(db, 'homeworkBoard/customData');
@@ -540,6 +600,10 @@ function attachHandlers(){
   });
 }
 
+document.getElementById('refreshBtn').addEventListener('click', () => {
+  location.reload();
+});
+
 document.getElementById('kidFilter').addEventListener('click', (e) => {
   const btn = e.target.closest('button');
   if(!btn) return;
@@ -827,6 +891,12 @@ document.getElementById('viewFeedbackBtn').addEventListener('click', async () =>
 document.getElementById('feedbackBackBtn').addEventListener('click', () => {
   feedbackPage.classList.remove('open');
 });
+
+document.getElementById('signOutBtn').addEventListener('click', () => {
+  closeMenu();
+  signOut(auth);
+});
+
 
 
 
