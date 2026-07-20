@@ -32,6 +32,16 @@ jobs:
           HASH=$(printf '%s' "$RESET_PIN" | sha256sum | cut -d' ' -f1)
           sed -i "s/__PIN_HASH__/$HASH/g" app.js
 
+      - name: Inject feedback email
+        env:
+          FEEDBACK_EMAIL: ${{ secrets.FEEDBACK_EMAIL }}
+        run: |
+          if [ -z "$FEEDBACK_EMAIL" ]; then
+            echo "::error::FEEDBACK_EMAIL repository secret is not set. Add it under Settings > Secrets and variables > Actions."
+            exit 1
+          fi
+          sed -i "s/__FEEDBACK_EMAIL__/$FEEDBACK_EMAIL/g" app.js
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
