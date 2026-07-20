@@ -435,7 +435,7 @@ function renderNotesRibbon(){
 }
 
 function renderHiddenPanel(){
-  const btn = document.getElementById('hiddenBtn');
+  const btn = document.getElementById('hiddenBtnLabel');
   const list = document.getElementById('hiddenList');
   const panel = document.getElementById('hiddenPanel');
 

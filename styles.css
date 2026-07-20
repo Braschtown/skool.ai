@@ -311,12 +311,14 @@
     pointer-events:auto;
   }
   .menu-item{
-    display:block;
+    display:flex;
+    align-items:center;
+    gap:10px;
     width:100%;
     text-align:left;
     font-family:'Raleway',sans-serif;
     font-size:13px;
-    font-weight:700;
+    font-weight:500;
     color:var(--text);
     background:none;
     border:none;
@@ -324,8 +326,15 @@
     padding:10px 12px;
     cursor:pointer;
   }
+  .menu-item .material-symbols-outlined{
+    font-size:18px;
+    color:var(--text-dim);
+    flex-shrink:0;
+    font-variation-settings:'opsz' 24, 'wght' 400, 'FILL' 0, 'GRAD' 0;
+  }
   .menu-item:hover{background:var(--card-hover);}
   .menu-item.danger{color:var(--overdue);}
+  .menu-item.danger .material-symbols-outlined{color:var(--overdue);}
   .menu-item.danger:hover{background:rgba(255,76,76,0.12);}
   .menu-divider{height:1px;background:var(--line);margin:5px 4px;}
 
@@ -635,7 +644,20 @@
   .legend{display:flex;gap:18px;flex-wrap:wrap;margin-bottom:16px;}
   .legend-item{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:500;color:var(--text-dim);}
   .legend-dot{width:10px;height:10px;border-radius:3px;}
-  .modal-card p{font-size:12.5px;font-weight:400;color:var(--text-faint);line-height:1.7;margin:0;}
+  .info-list{
+    margin:0;
+    padding:0 0 0 18px;
+    list-style:disc;
+  }
+  .info-list li{
+    font-size:12.5px;
+    font-weight:400;
+    color:var(--text-faint);
+    line-height:1.6;
+    margin-bottom:10px;
+  }
+  .info-list li::marker{color:var(--marker);}
+  .info-list li:last-child{margin-bottom:0;}
 
   .subjects-page{
     position:fixed;

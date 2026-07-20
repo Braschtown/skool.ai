@@ -47,17 +47,38 @@
           <span class="material-symbols-outlined">menu</span>
         </button>
         <div class="menu-dropdown" id="menuDropdown">
-          <button class="menu-item" id="hiddenBtn">Removed (0)</button>
-          <button class="menu-item" id="subjectsPageBtn">Manage subjects</button>
+          <button class="menu-item" id="hiddenBtn">
+            <span class="material-symbols-outlined">restore_from_trash</span>
+            <span class="menu-item-label" id="hiddenBtnLabel">Removed (0)</span>
+          </button>
+          <button class="menu-item" id="subjectsPageBtn">
+            <span class="material-symbols-outlined">checklist</span>
+            <span class="menu-item-label">Manage subjects</span>
+          </button>
           <div class="menu-divider"></div>
-          <button class="menu-item" id="uploadBtn">Upload new calendar…</button>
-          <button class="menu-item" id="restoreBtn">Restore original calendar</button>
+          <button class="menu-item" id="uploadBtn">
+            <span class="material-symbols-outlined">upload_file</span>
+            <span class="menu-item-label">Upload new calendar…</span>
+          </button>
+          <button class="menu-item" id="restoreBtn">
+            <span class="material-symbols-outlined">undo</span>
+            <span class="menu-item-label">Restore original calendar</span>
+          </button>
           <div class="menu-divider"></div>
-          <button class="menu-item" id="viewFeedbackBtn">View feedback</button>
+          <button class="menu-item" id="viewFeedbackBtn">
+            <span class="material-symbols-outlined">forum</span>
+            <span class="menu-item-label">View feedback</span>
+          </button>
           <div class="menu-divider"></div>
-          <button class="menu-item danger" id="resetBtn">Reset board</button>
+          <button class="menu-item danger" id="resetBtn">
+            <span class="material-symbols-outlined">restart_alt</span>
+            <span class="menu-item-label">Reset board</span>
+          </button>
           <div class="menu-divider"></div>
-          <button class="menu-item" id="signOutBtn">Sign out</button>
+          <button class="menu-item" id="signOutBtn">
+            <span class="material-symbols-outlined">logout</span>
+            <span class="menu-item-label">Sign out</span>
+          </button>
         </div>
         <input type="file" id="uploadInput" accept="application/json" style="display:none">
       </div>
@@ -105,7 +126,14 @@
       <div class="legend-item"><span class="legend-dot" style="background:var(--overdue)"></span>Overdue badge</div>
       <div class="legend-item"><span class="material-symbols-outlined" style="font-size:14px;color:var(--overdue)">flag</span>Flagged for follow-up</div>
     </div>
-    <p>Draft due dates matter — teachers give feedback that improves the final grade. Final due dates are firm; extensions must be requested from the school before the due date. Card positions sync live for the whole family. Removed a subject you don't take? Use the × on the card — it hides it for everyone, and you can bring it back any time from "Removed" in the menu. Tap the flag on a card to mark it for follow-up, with an optional note, visible to everyone on the board. If a due date changes, tap it to correct it (parent PIN required) — a small pencil shows on any date that's been adjusted from the original.</p>
+    <ul class="info-list">
+      <li>Draft due dates matter — teachers give feedback that improves the final grade.</li>
+      <li>Final due dates are firm; extensions must be requested from the school before the due date.</li>
+      <li>Card positions sync live for the whole family.</li>
+      <li>Removed a subject you don't take? Use the × on the card — it hides it for everyone, and you can bring it back any time from "Removed" in the menu.</li>
+      <li>Tap the flag on a card to mark it for follow-up, with an optional note, visible to everyone on the board.</li>
+      <li>If a due date changes, tap it to correct it (parent PIN required) — a small pencil shows on any date that's been adjusted from the original.</li>
+    </ul>
   </div>
 </div>
 
