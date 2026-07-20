@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { getDatabase, ref, onValue, set, push } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAKVctCVWs6-BIb0E9UTHZhwGM59wwKR8Q",
@@ -19,10 +19,16 @@ const dataRef = ref(db, 'homeworkBoard/customData');
 const flagsRef = ref(db, 'homeworkBoard/flags');
 const dateOverridesRef = ref(db, 'homeworkBoard/dateOverrides');
 const subjectVisibilityRef = ref(db, 'homeworkBoard/subjectVisibility');
+const feedbackRef = ref(db, 'homeworkBoard/feedback');
 
 // Replaced with a SHA-256 hash of the parent PIN at deploy time by the GitHub Actions workflow.
 // Never edit this by hand — set the real PIN via the RESET_PIN repository secret instead.
 const RESET_PIN_HASH = "__PIN_HASH__";
+
+// Replaced with the real address at deploy time by the GitHub Actions workflow (FEEDBACK_EMAIL secret).
+// Unlike the PIN, this can't be hashed — the browser needs the real address to build a mailto link —
+// so it's plain text in the deployed page once live, same as if it were typed directly into this file.
+const FEEDBACK_EMAIL = "__FEEDBACK_EMAIL__";
 
 async function checkPin(candidate){
   const enc = new TextEncoder().encode(candidate);
@@ -94,6 +100,7 @@ let hidden = {};   // sanitised-id -> true
 let flags = {};    // sanitised-id -> { note: string }
 let dateOverrides = {}; // sanitised-id -> "YYYY-MM-DD" — a corrected due date, keyed off the item's ORIGINAL date so it never loses its status/flag/hidden history when edited
 let subjectVisibility = {}; // "Y7|Subject Name" -> false when hidden. Absent (or true) means visible.
+let feedback = {}; // pushId -> { from, category, message, timestamp }
 let currentKidFilter = 'ALL';
 let searchTerm = '';
 let statusReady = false;
@@ -163,6 +170,11 @@ onValue(subjectVisibilityRef, (snapshot) => {
   subjectVisibilityReady = true;
   render();
   renderSubjectsPage();
+}, () => showConnError());
+
+onValue(feedbackRef, (snapshot) => {
+  feedback = snapshot.val() || {};
+  renderFeedbackPage();
 }, () => showConnError());
 
 let recentCompletionAt = 0;
@@ -715,5 +727,107 @@ document.getElementById('subjectsPageBtn').addEventListener('click', () => {
 document.getElementById('subjectsBackBtn').addEventListener('click', () => {
   subjectsPage.classList.remove('open');
 });
+
+/* ===== Feedback: submission ===== */
+const feedbackBackdrop = document.getElementById('feedbackBackdrop');
+const feedbackForm = document.getElementById('feedbackForm');
+const fbStatus = document.getElementById('fbStatus');
+let fbFrom = 'Year 7';
+let fbCategory = 'Idea';
+
+function openFeedbackModal(){
+  fbStatus.textContent = '';
+  fbStatus.className = 'fb-status';
+  feedbackBackdrop.classList.add('open');
+}
+function closeFeedbackModal(){ feedbackBackdrop.classList.remove('open'); }
+
+document.getElementById('feedbackFab').addEventListener('click', openFeedbackModal);
+document.getElementById('feedbackCloseBtn').addEventListener('click', closeFeedbackModal);
+feedbackBackdrop.addEventListener('click', (e) => {
+  if(e.target === feedbackBackdrop) closeFeedbackModal();
+});
+
+document.getElementById('fbFromRow').addEventListener('click', (e) => {
+  const btn = e.target.closest('.fb-choice');
+  if(!btn) return;
+  fbFrom = btn.dataset.val;
+  document.querySelectorAll('#fbFromRow .fb-choice').forEach(b => b.classList.toggle('active', b === btn));
+});
+document.getElementById('fbCategoryRow').addEventListener('click', (e) => {
+  const btn = e.target.closest('.fb-choice');
+  if(!btn) return;
+  fbCategory = btn.dataset.val;
+  document.querySelectorAll('#fbCategoryRow .fb-choice').forEach(b => b.classList.toggle('active', b === btn));
+});
+
+function buildFeedbackMailto(entry){
+  const subject = encodeURIComponent(`skool.ai feedback: ${entry.category} (${entry.from})`);
+  const body = encodeURIComponent(`${entry.message}\n\n— ${entry.from}, sent ${new Date(entry.timestamp).toLocaleString('en-AU')}`);
+  return `mailto:${FEEDBACK_EMAIL}?subject=${subject}&body=${body}`;
+}
+
+feedbackForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const messageInput = document.getElementById('fbMessage');
+  const message = messageInput.value.trim();
+  if(!message) return;
+
+  const submitBtn = feedbackForm.querySelector('.fb-submit');
+  submitBtn.disabled = true;
+
+  const entry = { from: fbFrom, category: fbCategory, message, timestamp: Date.now() };
+
+  try{
+    await set(push(feedbackRef), entry);
+    fbStatus.textContent = "Sent — thanks! Opening an email too, so it's not just sitting in a database.";
+    fbStatus.className = 'fb-status';
+    window.location.href = buildFeedbackMailto(entry);
+    messageInput.value = '';
+    setTimeout(closeFeedbackModal, 2200);
+  }catch(err){
+    console.error(err);
+    fbStatus.textContent = "Couldn't send that — check your connection and try again.";
+    fbStatus.className = 'fb-status error';
+  }finally{
+    submitBtn.disabled = false;
+  }
+});
+
+/* ===== Feedback: viewer (parent PIN required) ===== */
+const feedbackPage = document.getElementById('feedbackPage');
+
+function renderFeedbackPage(){
+  const list = document.getElementById('feedbackList');
+  const entries = Object.values(feedback).sort((a,b) => b.timestamp - a.timestamp);
+  if(entries.length === 0){
+    list.innerHTML = '<p class="feedback-empty">No feedback yet.</p>';
+    return;
+  }
+  list.innerHTML = entries.map(en => `
+    <div class="fb-entry">
+      <div class="fb-entry-head">
+        <span class="fb-entry-from">${en.from}</span>
+        <span class="fb-entry-cat">${en.category}</span>
+        <span class="fb-entry-date">${new Date(en.timestamp).toLocaleString('en-AU', {day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'})}</span>
+      </div>
+      <div class="fb-entry-msg">${escapeAttr(en.message)}</div>
+    </div>
+  `).join('');
+}
+
+document.getElementById('viewFeedbackBtn').addEventListener('click', async () => {
+  closeMenu();
+  const pin = prompt('Parent PIN required to view feedback:');
+  if(pin === null || pin.trim() === '') return;
+  const ok = await checkPin(pin.trim());
+  if(!ok){ alert("Nope. That's not it."); return; }
+  renderFeedbackPage();
+  feedbackPage.classList.add('open');
+});
+document.getElementById('feedbackBackBtn').addEventListener('click', () => {
+  feedbackPage.classList.remove('open');
+});
+
 
 

@@ -37,6 +37,8 @@
           <button class="menu-item" id="uploadBtn">Upload new calendar…</button>
           <button class="menu-item" id="restoreBtn">Restore original calendar</button>
           <div class="menu-divider"></div>
+          <button class="menu-item" id="viewFeedbackBtn">View feedback</button>
+          <div class="menu-divider"></div>
           <button class="menu-item danger" id="resetBtn">Reset board</button>
         </div>
         <input type="file" id="uploadInput" accept="application/json" style="display:none">
@@ -98,6 +100,49 @@
     <p class="subjects-sub">Turn off subjects a student doesn't take — the board (and any calendar uploaded for a new year) will only show what's switched on.</p>
   </div>
   <div class="subjects-list" id="subjectsList"></div>
+</div>
+
+<div class="subjects-page" id="feedbackPage">
+  <div class="subjects-page-head">
+    <button class="back-btn" id="feedbackBackBtn">
+      <span class="material-symbols-outlined">chevron_backward</span> Back to board
+    </button>
+    <h2>Feedback</h2>
+    <p class="subjects-sub">Everything sent in through the feedback button, newest first.</p>
+  </div>
+  <div class="feedback-list" id="feedbackList"></div>
+</div>
+
+<button class="feedback-fab" id="feedbackFab" title="Send feedback">
+  <span class="material-symbols-outlined">campaign</span>
+</button>
+
+<div class="modal-backdrop" id="feedbackBackdrop">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h2>Send feedback</h2>
+      <button class="modal-close" id="feedbackCloseBtn"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <form id="feedbackForm">
+      <label class="fb-label">Who's this from?</label>
+      <div class="fb-choice-row" id="fbFromRow">
+        <button type="button" class="fb-choice active" data-val="Year 7">Year 7</button>
+        <button type="button" class="fb-choice" data-val="Year 11">Year 11</button>
+        <button type="button" class="fb-choice" data-val="Parent">Parent</button>
+        <button type="button" class="fb-choice" data-val="Not saying">Not saying</button>
+      </div>
+      <label class="fb-label">What kind of thing is it?</label>
+      <div class="fb-choice-row" id="fbCategoryRow">
+        <button type="button" class="fb-choice active" data-val="Idea">Idea</button>
+        <button type="button" class="fb-choice" data-val="Bug">Bug</button>
+        <button type="button" class="fb-choice" data-val="Something's wrong">Something's wrong</button>
+      </div>
+      <label class="fb-label" for="fbMessage">What's up?</label>
+      <textarea id="fbMessage" class="fb-textarea" rows="4" maxlength="600" placeholder="Tell us what happened, or what you'd like changed…" required></textarea>
+      <button type="submit" class="fb-submit">Send feedback</button>
+      <p class="fb-status" id="fbStatus"></p>
+    </form>
+  </div>
 </div>
 
 <script type="module" src="app.js"></script>

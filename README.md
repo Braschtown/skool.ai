@@ -37,15 +37,23 @@ In the Firebase console: **Realtime Database → Rules**, replace the contents w
 
 Click **Publish**. This scopes access to only the `homeworkBoard` path and blocks everything else. There's no login on this app, so anyone with the page URL can still edit cards — reasonable for a family tool, just worth knowing.
 
-### 2. Add the repository secret (the parent PIN)
+### 2. Add the repository secrets
 
-Gates "Reset board", "Upload new calendar", and "Restore original calendar" to just the two of you.
+**PIN** — gates "Reset board", "Upload new calendar", "Restore original calendar", and "View feedback" to just the two of you.
 
 **Settings → Secrets and variables → Actions → New repository secret**
 - Name: `RESET_PIN`
 - Value: whatever code you want
 
 The PIN itself never appears in the repo or the live site, only its SHA-256 hash gets baked into `app.js` at deploy time.
+
+**Feedback email** — where the feedback button sends things.
+
+Add a second secret the same way:
+- Name: `FEEDBACK_EMAIL`
+- Value: `chris.brasch@gmail.com`
+
+Unlike the PIN, this one *can't* be hashed, the browser needs the real address to build the "email this to me" link when someone submits feedback. Keeping it as a secret just keeps it out of the committed source and git history; once the site is live, it's visible in the page source like any client-side value would be. For your own address on a family app, that's a reasonable trade-off, just not the same guarantee as the PIN.
 
 ### 3. Add the files to your repo
 
@@ -90,6 +98,14 @@ To go back to the bundled `data.json`, use **Restore original calendar** from th
 
 From the **≡ menu → Manage subjects**, each student's subjects list with an on/off switch. Turning a subject off hides every card for that subject, for everyone, until switched back on, useful when a new year's calendar includes electives one of the boys doesn't actually take. New subjects (e.g. after uploading a fresh year's calendar) default to **on** until someone turns them off.
 
+## Feedback
+
+The megaphone button (bottom-right, always visible) lets anyone send feedback, no PIN needed to submit. It asks who it's from, what kind of thing it is (idea/bug/something's wrong), and a message.
+
+On submit, two things happen: it saves into Firebase (so there's a running history), and it opens an email pre-addressed to you via the `FEEDBACK_EMAIL` secret, so you actually get notified rather than needing to remember to check. Note that step depends on the device having a mail app or webmail configured to handle `mailto:` links, if it doesn't, that part quietly does nothing, but the Firebase copy is saved regardless.
+
+**Menu → View feedback** (PIN-gated) shows the full history, newest first.
+
 ## Changing the PIN later
 
 Update the `RESET_PIN` secret, then re-run the workflow from the **Actions** tab (or push any small change to `main`).
@@ -104,4 +120,4 @@ Dates that apply to both boys (school-wide holidays, pupil-free days) are stored
 
 ## How the sync works
 
-Everyone's board reads and writes to the same Firebase paths (`homeworkBoard/status`, `homeworkBoard/hidden`, `homeworkBoard/customData`). Card moves, removed cards, and calendar uploads all update for everyone else's open tab live, no refresh needed. Only Reset, Upload, and Restore are PIN-gated — dragging, ticking off, and removing/restoring cards work for anyone.
+Everyone's board reads and writes to the same Firebase paths (`homeworkBoard/status`, `homeworkBoard/hidden`, `homeworkBoard/customData`, `homeworkBoard/subjectVisibility`, `homeworkBoard/feedback`). Card moves, removed cards, calendar uploads, subject toggles, and feedback all update live, no refresh needed. Reset, Upload, Restore, and viewing feedback are PIN-gated — dragging, ticking off, removing/restoring cards, toggling subjects, and *submitting* feedback work for anyone. Since the database rules already cover the whole `homeworkBoard` path (step 1 above), nothing extra needs enabling for feedback to work.
