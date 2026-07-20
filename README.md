@@ -25,7 +25,18 @@ In the Firebase console: **Realtime Database → Rules**, replace the contents w
   "rules": {
     "homeworkBoard": {
       ".read": true,
-      ".write": true
+      ".write": true,
+      "feedback": {
+        "$entryId": {
+          ".write": "!data.exists()",
+          ".validate": "newData.hasChildren(['from','category','message','timestamp'])",
+          "from": { ".validate": "newData.isString() && newData.val().length <= 40" },
+          "category": { ".validate": "newData.isString() && newData.val().length <= 40" },
+          "message": { ".validate": "newData.isString() && newData.val().length <= 600" },
+          "timestamp": { ".validate": "newData.isNumber()" },
+          "$other": { ".validate": false }
+        }
+      }
     },
     "$other": {
       ".read": false,
@@ -37,23 +48,17 @@ In the Firebase console: **Realtime Database → Rules**, replace the contents w
 
 Click **Publish**. This scopes access to only the `homeworkBoard` path and blocks everything else. There's no login on this app, so anyone with the page URL can still edit cards — reasonable for a family tool, just worth knowing.
 
-### 2. Add the repository secrets
+The extra `feedback` block does two specific things: it stops anyone from overwriting or deleting an *existing* entry (each one can only be created once, never edited afterwards), and it rejects anything that doesn't match the expected shape, no giant messages, no extra junk fields, no wrong data types. It's a genuine guard against malformed or oversized submissions. It does **not** stop someone from submitting many small valid entries quickly, that's a different problem (see "About spam protection" below).
 
-**PIN** — gates "Reset board", "Upload new calendar", "Restore original calendar", and "View feedback" to just the two of you.
+### 2. Add the repository secret (the parent PIN)
+
+Gates "Reset board", "Upload new calendar", "Restore original calendar", and "View feedback" to just the two of you.
 
 **Settings → Secrets and variables → Actions → New repository secret**
 - Name: `RESET_PIN`
 - Value: whatever code you want
 
 The PIN itself never appears in the repo or the live site, only its SHA-256 hash gets baked into `app.js` at deploy time.
-
-**Feedback email** — where the feedback button sends things.
-
-Add a second secret the same way:
-- Name: `FEEDBACK_EMAIL`
-- Value: `chris.brasch@gmail.com`
-
-Unlike the PIN, this one *can't* be hashed, the browser needs the real address to build the "email this to me" link when someone submits feedback. Keeping it as a secret just keeps it out of the committed source and git history; once the site is live, it's visible in the page source like any client-side value would be. For your own address on a family app, that's a reasonable trade-off, just not the same guarantee as the PIN.
 
 ### 3. Add the files to your repo
 
@@ -100,11 +105,17 @@ From the **≡ menu → Manage subjects**, each student's subjects list with an 
 
 ## Feedback
 
-The megaphone button (bottom-right, always visible) lets anyone send feedback, no PIN needed to submit. It asks who it's from, what kind of thing it is (idea/bug/something's wrong), and a message.
+The thumbs-up-down button (bottom-right, always visible) lets anyone send feedback, no PIN needed to submit. It asks who it's from, what kind of thing it is (idea/bug/something's wrong), and a message, then saves straight into Firebase.
 
-On submit, two things happen: it saves into Firebase (so there's a running history), and it opens an email pre-addressed to you via the `FEEDBACK_EMAIL` secret, so you actually get notified rather than needing to remember to check. Note that step depends on the device having a mail app or webmail configured to handle `mailto:` links, if it doesn't, that part quietly does nothing, but the Firebase copy is saved regardless.
+**Menu → View feedback** (PIN-gated) shows the full history, newest first. Since there's no automatic notification (no email, no push), checking that menu occasionally is the only way you'll see new feedback, worth building into a habit, or ask Claude about the notification options discussed earlier if that turns out to be a problem in practice.
 
-**Menu → View feedback** (PIN-gated) shows the full history, newest first.
+### About spam protection
+
+Because feedback can be submitted by anyone with the page URL, no login required, there's a real (if low-probability, for a small family app) risk of it being spammed. Three layers are in place, roughly weakest to strongest:
+
+1. **Client-side throttle** — one submission per 30 seconds per browser. Trivial for anyone determined to bypass (clearing browser storage, or just hitting Firebase directly), but stops accidental double-sends and casual spam.
+2. **Database rules validation** (the `feedback` block in step 1 above) — rejects malformed or oversized entries, and stops any entry from being edited after creation. Real protection against garbage data, not against submission *volume*.
+3. **Nothing yet stops a determined attacker from writing many valid, small entries quickly.** If that ever becomes an actual problem (not a hypothetical one), the proper fix is **Firebase App Check** with reCAPTCHA — a free Google service built exactly for this, blocking non-browser/bot traffic at the database level before it even reaches your rules. It needs a one-time reCAPTCHA site key, a small script added to `index.html`, and enforcement turned on in the Firebase console. It's a genuine step up in setup complexity from everything else in this app, so it's not included by default, ask if you want it added.
 
 ## Changing the PIN later
 

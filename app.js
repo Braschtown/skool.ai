@@ -25,11 +25,6 @@ const feedbackRef = ref(db, 'homeworkBoard/feedback');
 // Never edit this by hand — set the real PIN via the RESET_PIN repository secret instead.
 const RESET_PIN_HASH = "__PIN_HASH__";
 
-// Replaced with the real address at deploy time by the GitHub Actions workflow (FEEDBACK_EMAIL secret).
-// Unlike the PIN, this can't be hashed — the browser needs the real address to build a mailto link —
-// so it's plain text in the deployed page once live, same as if it were typed directly into this file.
-const FEEDBACK_EMAIL = "__FEEDBACK_EMAIL__";
-
 async function checkPin(candidate){
   const enc = new TextEncoder().encode(candidate);
   const hashBuf = await crypto.subtle.digest('SHA-256', enc);
@@ -761,17 +756,21 @@ document.getElementById('fbCategoryRow').addEventListener('click', (e) => {
   document.querySelectorAll('#fbCategoryRow .fb-choice').forEach(b => b.classList.toggle('active', b === btn));
 });
 
-function buildFeedbackMailto(entry){
-  const subject = encodeURIComponent(`skool.ai feedback: ${entry.category} (${entry.from})`);
-  const body = encodeURIComponent(`${entry.message}\n\n— ${entry.from}, sent ${new Date(entry.timestamp).toLocaleString('en-AU')}`);
-  return `mailto:${FEEDBACK_EMAIL}?subject=${subject}&body=${body}`;
-}
+const FEEDBACK_THROTTLE_MS = 30 * 1000; // basic spam guard — not bulletproof, see README
 
 feedbackForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   const messageInput = document.getElementById('fbMessage');
   const message = messageInput.value.trim();
   if(!message) return;
+
+  const lastSent = Number(localStorage.getItem('skoolai_lastFeedback') || 0);
+  const waitLeft = FEEDBACK_THROTTLE_MS - (Date.now() - lastSent);
+  if(waitLeft > 0){
+    fbStatus.textContent = `Hang on a moment — you can send another in ${Math.ceil(waitLeft / 1000)}s.`;
+    fbStatus.className = 'fb-status error';
+    return;
+  }
 
   const submitBtn = feedbackForm.querySelector('.fb-submit');
   submitBtn.disabled = true;
@@ -780,11 +779,11 @@ feedbackForm.addEventListener('submit', async (e) => {
 
   try{
     await set(push(feedbackRef), entry);
-    fbStatus.textContent = "Sent — thanks! Opening an email too, so it's not just sitting in a database.";
+    localStorage.setItem('skoolai_lastFeedback', String(Date.now()));
+    fbStatus.textContent = "Sent — thanks!";
     fbStatus.className = 'fb-status';
-    window.location.href = buildFeedbackMailto(entry);
     messageInput.value = '';
-    setTimeout(closeFeedbackModal, 2200);
+    setTimeout(closeFeedbackModal, 1400);
   }catch(err){
     console.error(err);
     fbStatus.textContent = "Couldn't send that — check your connection and try again.";
